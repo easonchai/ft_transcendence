@@ -2,7 +2,6 @@ version: '1'
 services:
   backend:
     image: backend:v1
-    container_name: backend-container
     build: ./backend
     volumes:
       - ./backend/app:/app
@@ -10,10 +9,8 @@ services:
       - fortytwo
     ports:
       - 3000:3000
-
   frontend:
     image: frontend:v1
-    container_name: frontend-container
     build: ./frontend
     volumes:
       - ./frontend/app:/app
@@ -21,6 +18,14 @@ services:
       - fortytwo
     ports:
       - 3001:3001
+  database:
+    image: postgres:15
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+    networks:
+      - fortytwo
 
 networks:
   fortytwo:
