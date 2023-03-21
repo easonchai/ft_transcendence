@@ -1,0 +1,26 @@
+version: '1'
+services:
+  backend:
+    image: backend:v1
+    container_name: backend-container
+    build: ./backend
+    volumes:
+      - ./backend/app:/app
+    networks:
+      - fortytwo
+    ports:
+      - 3000:3000
+
+  frontend:
+    image: frontend:v1
+    container_name: frontend-container
+    build: ./frontend
+    volumes:
+      - ./frontend/app:/app
+    networks:
+      - fortytwo
+    ports:
+      - 3001:3001
+
+networks:
+  fortytwo:
