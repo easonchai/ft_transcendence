@@ -19,6 +19,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
+  "prisma": {
+    "seed": "ts-node ./prisma/seed/seed.ts"
+  },
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
     "@nestjs/common": "^9.0.0",
@@ -35,7 +38,7 @@
     "@nestjs/testing": "^9.0.0",
     "@types/express": "^4.17.13",
     "@types/jest": "29.2.4",
-    "@types/node": "18.11.18",
+    "@types/node": "^18.11.18",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
@@ -51,7 +54,7 @@
     "ts-loader": "^9.2.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "4.1.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.9.5"
   },
   "jest": {
     "moduleFileExtensions": [
