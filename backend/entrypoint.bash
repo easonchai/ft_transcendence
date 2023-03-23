@@ -3,10 +3,6 @@
 cd /app
 
 npm install
-
-if ![ -e prisma/migrations ]
-	cd prisma
-	npx prisma mirgate dev
-fi
-
+npx prisma migrate deploy
+npx prisma generate
 npm run start:dev

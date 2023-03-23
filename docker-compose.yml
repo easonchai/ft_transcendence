@@ -2,24 +2,38 @@ version: '1'
 services:
   backend:
     image: backend:v1
+    container_name: backend
     build: ./backend
+    restart: always
     volumes:
       - ./backend/app:/app
+      - ./backend/app/.docker.env:/app/.env
+      - /app/node_modules/
     networks:
       - fortytwo
     ports:
       - 3000:3000
+    depends_on:
+      - database
+    env_file:
+      - .env
   frontend:
     image: frontend:v1
+    container_name: frontend
     build: ./frontend
+    restart: always
     volumes:
       - ./frontend/app:/app
     networks:
       - fortytwo
     ports:
       - 3001:3001
+    depends_on:
+      - database
   database:
     image: postgres:15
+    container_name: postgres
+    restart: always
     ports:
       - 5432:5432
     env_file:
