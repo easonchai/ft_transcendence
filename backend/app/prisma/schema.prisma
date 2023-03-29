@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-	binaryTargets = ["native", "darwin-arm64", "linux-arm64-openssl-1.1.x"]
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin-arm64", "linux-arm64-openssl-1.1.x"]
 }
 
 datasource db {
@@ -27,6 +27,11 @@ enum ChannelUserType {
   OWNER
   ADMIN
   MEMBER
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
 }
 
 // --- NextAuth Prisma Schema ---
@@ -60,7 +65,7 @@ model Session {
 
 model User {
   id               String               @id @default(cuid())
-  name             String?
+  name             String								@unique	// 42 Username
   email            String?              @unique
   emailVerified    DateTime?
   image            String?
@@ -125,11 +130,12 @@ model UserBlocks {
 
 model UserFriends {
   user_id    String
-  user       User     @relation("friend", fields: [user_id], references: [id], onDelete: Cascade)
+  user       User         @relation("friend", fields: [user_id], references: [id], onDelete: Cascade)
   friend_id  String
-  friend     User     @relation("friend_of", fields: [friend_id], references: [id], onDelete: Cascade)
-  created_at DateTime @default(now())
-  update_at  DateTime @updatedAt
+  friend     User         @relation("friend_of", fields: [friend_id], references: [id], onDelete: Cascade)
+  status     FriendStatus
+  created_at DateTime     @default(now())
+  update_at  DateTime     @updatedAt
 
   @@id([user_id, friend_id])
 }

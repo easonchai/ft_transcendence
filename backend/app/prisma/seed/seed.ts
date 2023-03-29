@@ -1,4 +1,4 @@
-import { Match, Prisma, PrismaClient, User, Channels, ChannelType, ChannelUserType } from '@prisma/client'
+import { Match, Prisma, PrismaClient, User, Channels, ChannelType, ChannelUserType, FriendStatus } from '@prisma/client'
 import { faker } from '@faker-js/faker'
 const prisma = new PrismaClient()
 
@@ -46,21 +46,21 @@ const seedFriends = async (): Promise<void> => {
 	await prisma.user.update({
 		where: { id: seededUsers[0].id },
 		data: {
-			friends: { create: [{ friend_id: seededUsers[1].id }] }
+			friends: { create: [{ friend_id: seededUsers[1].id, status: FriendStatus.ACCEPTED }] }
 		}
 	});
 	
 	await prisma.user.update({
 		where: { id: seededUsers[2].id },
 		data: {
-			friends: { create: [{ friend_id: seededUsers[3].id }, { friend_id: seededUsers[4].id }] }
+			friends: { create: [{ friend_id: seededUsers[3].id, status: FriendStatus.PENDING }, { friend_id: seededUsers[4].id, status: FriendStatus.ACCEPTED }] }
 		}
 	});
 	
 	await prisma.user.update({
 		where: { id: seededUsers[5].id },
 		data: {
-			friends: { create: [{ friend_id: seededUsers[6].id }, {friend_id: seededUsers[7].id}, {friend_id: seededUsers[8].id }] }
+			friends: { create: [{ friend_id: seededUsers[6].id, status: FriendStatus.ACCEPTED }, { friend_id: seededUsers[7].id, status: FriendStatus.ACCEPTED }, { friend_id: seededUsers[8].id, status: FriendStatus.PENDING }] }
 		}
 	})
 }
@@ -119,6 +119,7 @@ const seedMessages = async(): Promise<void> => {
 const seededChannels: Channels[] = [];
 
 const seedChannels = async(): Promise<void> => {
+	
 	let channels: Prisma.ChannelsCreateInput[] = Array.from({ length: 2 }, (v, i) => (
 		{
 			name: faker.name.firstName(),
