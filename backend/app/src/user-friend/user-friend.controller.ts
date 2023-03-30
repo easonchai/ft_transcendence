@@ -1,4 +1,15 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { UserFriendService } from './user-friend.service';
 
 @Controller('user-friend')
-export class UserFriendController {}
+@ApiTags('friends')
+export class UserFriendController {
+
+	constructor(private userFriendService: UserFriendService) { }
+
+	@Get(':id')
+	async getAllFriends(@Param('id') id: string) {
+		return this.userFriendService.getAllFriends();
+	}
+}
