@@ -29,6 +29,12 @@ enum ChannelUserType {
   MEMBER
 }
 
+enum FriendRequestStatus {
+	PENDING
+	DECLINED
+	ACCEPTED
+}
+
 // --- NextAuth Prisma Schema ---
 
 model Account {
@@ -128,6 +134,7 @@ model UserFriends {
   user       User     @relation("friend", fields: [user_id], references: [id], onDelete: Cascade)
   friend_id  String
   friend     User     @relation("friend_of", fields: [friend_id], references: [id], onDelete: Cascade)
+  status	 FriendRequestStatus @default(PENDING)
   created_at DateTime @default(now())
   update_at  DateTime @updatedAt
 

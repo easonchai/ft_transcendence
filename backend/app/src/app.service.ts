@@ -22,11 +22,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 	}
 }
 
-@Injectable()
-export class UserService {
-	constructor(private prisma: PrismaService) {}
+// @Injectable()
+// export class UserService {
+// 	constructor(private prisma: PrismaService) {}
 	
-	async getUser() {
-		return await this.prisma.user.findFirst();
-	}
-}
+// 	async getUser() {
+// 		return await this.prisma.user.findFirst();
+// 	}
+// }
