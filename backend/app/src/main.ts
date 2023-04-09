@@ -1,9 +1,17 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+import { PrismaClientExceptionFilter } from './exceptions/prisma-client-exception.filter';
+import { AppExceptionFilter } from './exceptions/app_exception';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+	
+	// class-validator
+	app.useGlobalPipes(new ValidationPipe())
+	
+	app.useGlobalFilters(new PrismaClientExceptionFilter(), new AppExceptionFilter(app.get(HttpAdapterHost)));
 
   // You will need this for nextauth on a production environment.
   // Trust me, I spent 12 hours crying on this

@@ -6,9 +6,9 @@ services:
     build: ./backend
     restart: always
     volumes:
-      - ./backend/app:/app
       - ./backend/app/.docker.env:/app/.env
       - /app/node_modules/
+      - ./backend/app:/app
     networks:
       - fortytwo
     ports:

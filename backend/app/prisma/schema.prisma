@@ -65,7 +65,7 @@ model Session {
 
 model User {
   id               String               @id @default(cuid())
-  name             String								@unique	// 42 Username
+  name             String               @unique // 42 Username
   email            String?              @unique
   emailVerified    DateTime?
   image            String?
@@ -188,13 +188,13 @@ model ChannelBannedUsers {
 }
 
 model ChannelMessages {
+  id         Int      @id @default(autoincrement())
   user_id    String
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  channel_id Int
+  channel_id Int			
   channel    Channels @relation(fields: [channel_id], references: [id], onDelete: Cascade)
   message    String   @db.Text
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-
-  @@id([user_id, channel_id])
+	
 }
