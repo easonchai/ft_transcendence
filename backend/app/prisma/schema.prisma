@@ -75,7 +75,7 @@ model User {
   displayname      String               @unique
   status           UserStatus           @default(OFFLINE)
   matches          UserMatch[]
-  blockers         UserBlocks[]         @relation("blocker")
+  blocked          UserBlocks[]         @relation("blocker")
   blocked_by       UserBlocks[]         @relation("blocked_by")
   friends          UserFriends[]        @relation("friend")
   friend_of        UserFriends[]        @relation("friend_of")
@@ -118,14 +118,14 @@ model UserMatch {
 }
 
 model UserBlocks {
-  blocker_id String
-  blocker    User     @relation("blocker", fields: [blocker_id], references: [id], onDelete: Cascade)
-  blocked_id String
-  blocked    User     @relation("blocked_by", fields: [blocked_id], references: [id], onDelete: Cascade)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  blocked_by_id String
+  blocked_by    User     @relation("blocker", fields: [blocked_by_id], references: [id], onDelete: Cascade)
+  blocked_id    String
+  blocked       User     @relation("blocked_by", fields: [blocked_id], references: [id], onDelete: Cascade)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
-  @@id([blocker_id, blocked_id])
+  @@id([blocked_by_id, blocked_id])
 }
 
 model UserFriends {
@@ -191,10 +191,9 @@ model ChannelMessages {
   id         Int      @id @default(autoincrement())
   user_id    String
   user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  channel_id Int			
+  channel_id Int
   channel    Channels @relation(fields: [channel_id], references: [id], onDelete: Cascade)
   message    String   @db.Text
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-	
 }

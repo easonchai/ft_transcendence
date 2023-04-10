@@ -1,5 +1,6 @@
-import { ApiHideProperty, ApiProperty, PartialType } from "@nestjs/swagger";
+import { ApiHideProperty, ApiProperty, OmitType, PartialType } from "@nestjs/swagger";
 import { ChannelMessages, Channels, ChannelType, ChannelUsers, ChannelUserType, User, UserStatus } from "@prisma/client";
+import { Type } from "class-transformer";
 import { IsEnum } from 'class-validator'
 
 class CreatedUpdated {
@@ -12,21 +13,19 @@ class CreatedUpdated {
 
 // Get
 
-export class getChannelsDto extends CreatedUpdated implements Channels {
+// export class getChannelsDto extends CreatedUpdated implements Partial<Channels> {
+export class GetChannelsDto extends CreatedUpdated implements Omit<Channels, 'password'> {
 	@ApiProperty()
 	id: number;
 	
 	@ApiProperty()
 	name: string;
 	
-	@ApiProperty()
-	password: string | null;
-	
 	@ApiProperty({ enum: [ChannelType] })
 	type: ChannelType;
 }
 
-export class getChannelMessagesDto extends CreatedUpdated implements ChannelMessages {
+export class GetChannelMessagesDto extends CreatedUpdated implements ChannelMessages {
 	@ApiProperty()
 	id: number
 	
@@ -43,7 +42,7 @@ export class getChannelMessagesDto extends CreatedUpdated implements ChannelMess
 	created_at: Date;
 }
 
-export class getUserDto extends CreatedUpdated implements User {
+export class GetUserDto extends CreatedUpdated implements User {
 	@ApiProperty()
 	id: string;
 	
@@ -66,7 +65,7 @@ export class getUserDto extends CreatedUpdated implements User {
 	status: UserStatus;
 }
 
-export class getChannelUsersDto extends CreatedUpdated implements ChannelUsers {
+export class GetChannelUsersDto extends CreatedUpdated implements ChannelUsers {
 	@ApiProperty()
 	user_id: string;
 	
@@ -80,12 +79,12 @@ export class getChannelUsersDto extends CreatedUpdated implements ChannelUsers {
 	type: ChannelUserType;
 	
 	@ApiProperty()
-	user: getUserDto;
+	user: GetUserDto;
 }
 
 // Create
 
-export class createChannelDto {
+export class CreateChannelDto {
 	@ApiProperty()
 	name: string;
 	
@@ -97,7 +96,7 @@ export class createChannelDto {
 	type: ChannelType;
 }
 
-export class createChannelMessagesDto {
+export class CreateChannelMessagesDto {
 	@ApiProperty()
 	message: string;
 	
@@ -105,8 +104,13 @@ export class createChannelMessagesDto {
 	channel_id: number;
 }
 
+export class CreateChannelUsersDto {
+	@ApiProperty()
+	password?: string;
+}
+
 // Update
 
-export class updateChannelDto extends PartialType(createChannelDto) {
+export class UpdateChannelDto extends PartialType(CreateChannelDto) {
 	
 }

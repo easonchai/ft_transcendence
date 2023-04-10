@@ -69,14 +69,14 @@ const seedBlocks = async (): Promise<void> => {
 	await prisma.user.update({
 		where: { id: seededUsers[9].id },
 		data: {
-			blockers: { create: [{ blocked_id: seededUsers[8].id }] }
+			blocked: { create: { blocked_id: seededUsers[8].id } }
 		}
 	})
 	
 	await prisma.user.update({
 		where: { id: seededUsers[6].id },
 		data: {
-			blockers: { create: [{ blocked_id: seededUsers[1].id }, {blocked_id: seededUsers[2].id}] }
+			blocked: { create: [{ blocked_id: seededUsers[0].id }, { blocked_id: seededUsers[2].id }] }
 		}
 	})
 }
@@ -116,7 +116,7 @@ const seedMessages = async(): Promise<void> => {
 	})
 }
 
-const seededChannels: Channels[] = [];
+let seededChannels: Channels[] = [];
 
 const seedChannels = async(): Promise<void> => {
 	

@@ -1,9 +1,8 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { ChannelMessages, Channels, ChannelUsers, ChannelUserType, Prisma, PrismaClient } from '@prisma/client';
+import { ChannelMessages, Channels, ChannelUsers, ChannelUserType, Prisma, PrismaClient, User } from '@prisma/client';
 import { PrismaService } from 'src/app.service';
-import { createChannelDto, createChannelMessagesDto, updateChannelDto } from './channels.dto';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-const prisma = new PrismaClient();
+import { CreateChannelDto, CreateChannelMessagesDto, CreateChannelUsersDto, GetChannelMessagesDto, GetChannelUsersDto, GetChannelsDto, UpdateChannelDto } from './channels.dto';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class ChannelsService {
@@ -13,39 +12,46 @@ export class ChannelsService {
 	
 	// Get
 	
-	async getAllChannels(): Promise<Channels[]> {
+	async getAllChannels(): Promise<GetChannelsDto[]> {
 		const channels: Channels[] = await this.prisma.channels.findMany();
 		channels.forEach(obj => { delete obj.password; })
-		return channels;
+		return channels.filter((obj) => obj.type != 'PRIVATE');
 	}
 	
-	async getChannelById(id: number): Promise<Channels> {
-		const channel: Channels = await this.prisma.channels.findFirstOrThrow({
+	async getChannelById(id: number): Promise<GetChannelsDto> {
+		const channel: Channels = await this.prisma.channels.findUniqueOrThrow({
 			where: { id: +id },
-			include: {
-				users: {
-					where: { type: ChannelUserType.OWNER },
-					include: {
-						user: true
-					}
-				}
-			}
 		});
 		delete channel.password;
 		return channel
 	}
 	
-	async getMessegesByChannelId(id: number): Promise<ChannelMessages[]> {
-		return await this.prisma.channelMessages.findMany({
+	async getChannelMessegesByChannelId(id: number): Promise<GetChannelMessagesDto[]> {
+		const user = await this.prisma.user.findFirst({ include: { blocked: true, blocked_by: true } });	// Temporary
+		const user_blocked_n_blocked_by = [];
+		user.blocked.forEach((obj) => {
+			user_blocked_n_blocked_by.push(obj.blocked_id);
+		});
+		user.blocked_by.forEach((obj) => {
+			user_blocked_n_blocked_by.push(obj.blocked_by_id);
+		})
+		
+		let messages = await this.prisma.channelMessages.findMany({
 			where: { channel_id: +id },
 			orderBy: {
 				created_at: 'desc'
+			},
+			include: {
+				user: true
 			}
 		})
+		
+		messages = messages.filter((obj) => !user_blocked_n_blocked_by.includes(obj.user.id));
+		return messages;
 	}
 	
-	async getUsersByChannelId(id: number): Promise<ChannelUsers[]> {
-		return await prisma.channelUsers.findMany({
+	async getChannelUsersByChannelId(id: number): Promise<GetChannelUsersDto[]> {
+		return await this.prisma.channelUsers.findMany({
 			where: { channel_id: +id },
 			include: {
 				user: true
@@ -55,29 +61,36 @@ export class ChannelsService {
 	
 	// Post
 	
-	async createChannel(body: createChannelDto): Promise<Channels> {
-		if (body.type == "PROTECTED" && !body.password) throw new HttpException("Private ", HttpStatus.BAD_REQUEST)
-		const user = await prisma.user.findFirst();
-		const created = await prisma.channels.create({
+	async createChannel(body: CreateChannelDto, user_id: string = ''): Promise<GetChannelsDto> {
+		let user: User;
+		if (user_id === '') {
+			user = await this.prisma.user.findFirst();
+		} else {
+			user = await this.prisma.user.findUnique({ where: { id: user_id } });
+		}
+		
+		if (body.type == "PROTECTED" && !body.password) throw new HttpException("PROTECTED password must have password", HttpStatus.BAD_REQUEST)
+		const created = await this.prisma.channels.create({
 			data: {
 				name: body.name,
 				type: body.type,
-				password: body.password,
-				// id: 1,		// Test PrismaClientExceptionFilter
+				password: await bcrypt.hash(body.password, await bcrypt.genSalt()),
 				users: {
 					create: [
 						{ user_id: user.id, type: ChannelUserType.OWNER }
 					]
 				}
-			}
+			},
+			include: { users: true } 
 		})
+		delete created.password
 		return created;
 	}
 	
-	async createChannelMessages(body: createChannelMessagesDto): Promise<ChannelMessages> {
-		const user = await prisma.user.findFirst();
+	async createChannelMessages(body: CreateChannelMessagesDto): Promise<GetChannelMessagesDto> {
+		const user = await this.prisma.user.findFirst();	// Temporary
 		// prisma create is not returning correct value
-		const created = await prisma.channelMessages.create({
+		const created = await this.prisma.channelMessages.create({
 			data: {
 				message: body.message,
 				channel: {
@@ -95,27 +108,58 @@ export class ChannelsService {
 		return created;
 	}
 	
+	async createChannelUsersByJoin(id: number, body: CreateChannelUsersDto, user_id: string = ''): Promise<GetChannelUsersDto> {
+		const user = user_id === '' ?	// Testing
+			await this.prisma.user.findFirst() :
+			await this.prisma.user.findUnique({ where: { id: user_id } });
+		
+		const channel = await this.prisma.channels.findUnique({ where: { id: +id } });
+		if (channel.type === 'PRIVATE') throw new HttpException('Channel is PRIVATE', HttpStatus.BAD_REQUEST);
+		else if (channel.type === 'PROTECTED') {
+			if (!body.password) throw new HttpException('Channel requires password', HttpStatus.BAD_REQUEST);
+			else if (!(await bcrypt.compare(body.password, channel.password))) throw new HttpException('Channel password incorrect', HttpStatus.UNAUTHORIZED);
+		}
+		
+		const created = await this.prisma.channelUsers.create({
+			data: {
+				type: 'MEMBER',
+				user: {
+					connect: { id: user.id }
+				},
+				channel: {
+					connect: { id: +id }
+				}
+			},
+			include: { user: true }
+		})
+		return created;
+	}
+	
+	async createChannelUserByAdd(id: number, user_id: string): Promise<GetChannelUsersDto> {
+		const user = await this.prisma.user.findUnique({ where: { id: user_id } });
+		const created = await this.prisma.channelUsers.create({
+			data: {
+				type: 'MEMBER',
+				user: {
+					connect: { id: user.id }
+				},
+				channel: {
+					connect: { id: +id }
+				}
+			},
+			include: { user: true }
+		})
+	}
+	
 	// Patch
 	
-	async updateChannel(id: number, body: updateChannelDto): Promise<Channels> {
-		const first_user = await prisma.user.findUnique({ 
-			where: { id: 'clg7t7h1h00020hu6c1bp9jog' },
-			include: {
-				channels: true
-			}
-		});
-		const isOwner = first_user.channels.find((obj) => obj.channel_id === +id);
-		if (!isOwner)
+	async updateChannel(id: number, body: UpdateChannelDto): Promise<GetChannelsDto> {
+		const user = await this.prisma.user.findFirst({ include: { channels: true } });	// Temporary
+		
+		const channelUser = user.channels.find((obj) => obj.channel_id === +id && (obj.type === 'OWNER' || obj.type === 'ADMIN'));
+		if (channelUser)
 			throw new HttpException('User is not owner nor admin', HttpStatus.BAD_REQUEST);
-		await prisma.user.findFirstOrThrow({		// Throw if not owner/admin
-			where: {
-				id: first_user.id,
-				channels: {
-					every: { type: "OWNER" || "ADMIN", channel_id: +id }
-				}
-			}
-		});
-		const updated = await prisma.channels.update({
+		const updated = await this.prisma.channels.update({
 			where: { id: +id },
 			data: {
 				name: body.name || undefined,
@@ -126,6 +170,27 @@ export class ChannelsService {
 		return updated;
 	}
 	
+	// Delete
 	
-	
+	async deleteChannelUsers(id: number): Promise<void> {
+		const user = await this.prisma.user.findFirst({ include: { channels: true } });	// Temporary
+		
+		const channelUser = user.channels.find((obj) => obj.channel_id === +id);
+		if (!channelUser) // User does not exist in channel
+			throw new HttpException('User is not in channel', HttpStatus.BAD_REQUEST);
+		if (channelUser.type === 'OWNER') {
+			await this.prisma.channels.delete({
+				where: { id: +id }
+			})
+		} else {
+			await this.prisma.channelUsers.delete({
+				where: {
+					user_id_channel_id: {
+						user_id: user.id,
+						channel_id: +id
+					}
+				}
+			})
+		}
+	}
 }
