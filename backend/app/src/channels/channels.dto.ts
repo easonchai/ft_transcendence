@@ -1,5 +1,5 @@
 import { ApiHideProperty, ApiProperty, OmitType, PartialType } from "@nestjs/swagger";
-import { ChannelMessages, Channels, ChannelType, ChannelUsers, ChannelUserType, User, UserStatus } from "@prisma/client";
+import { ChannelMessages, Channels, ChannelType, ChannelUsers, ChannelUserType, User, UserStatus, ChannelBannedUsers } from "@prisma/client";
 import { Type } from "class-transformer";
 import { IsEnum } from 'class-validator'
 
@@ -82,6 +82,17 @@ export class GetChannelUsersDto extends CreatedUpdated implements ChannelUsers {
 	user: GetUserDto;
 }
 
+export class GetChannelBannedUsers extends CreatedUpdated implements ChannelBannedUsers {
+	@ApiProperty()
+	user_id: string;
+	
+	@ApiProperty()
+	channel_id: number;
+	
+	@ApiProperty()
+	user: GetUserDto;
+}
+
 // Create
 
 export class CreateChannelDto {
@@ -99,18 +110,22 @@ export class CreateChannelDto {
 export class CreateChannelMessagesDto {
 	@ApiProperty()
 	message: string;
-	
-	@ApiProperty()
-	channel_id: number;
 }
 
 export class CreateChannelUsersDto {
 	@ApiProperty()
 	password?: string;
+	
+	@ApiProperty()
+	type?: ChannelUserType
+	
+	@ApiProperty()
+	mute_time?: Date
 }
 
 // Update
 
-export class UpdateChannelDto extends PartialType(CreateChannelDto) {
-	
-}
+export class UpdateChannelDto extends PartialType(CreateChannelDto) {}
+
+export class UpdateChannelUserDto extends PartialType(CreateChannelUsersDto) {}
+

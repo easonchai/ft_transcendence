@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, UseFilters } from '@
 import { ApiHeader, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ChannelMessages, Channels, ChannelUsers, Prisma } from '@prisma/client';
 import { PrismaClientExceptionFilter } from 'src/exceptions/app_exception.filter';
-import { CreateChannelDto, CreateChannelMessagesDto, CreateChannelUserDto, GetChannelMessagesDto, GetChannelsDto, GetChannelUsersDto, UpdateChannelDto } from './channels.dto';
+import { CreateChannelDto, CreateChannelMessagesDto, CreateChannelUsersDto, GetChannelMessagesDto, GetChannelsDto, GetChannelUsersDto, UpdateChannelDto } from './channels.dto';
 import { ChannelsService } from './channels.service';
 
 @Controller('channels')
@@ -69,8 +69,8 @@ export class ChannelsController {
 	@ApiOkResponse({
 		type: GetChannelMessagesDto
 	})
-	async createChannelMessages(@Body() body: CreateChannelMessagesDto) {
-		return await this.channelsService.createChannelMessages(body);
+	async createChannelMessages(@Param('id') id: number, @Body() body: CreateChannelMessagesDto) {
+		return await this.channelsService.createChannelMessages(id, body);
 	}
 	
 	@Post(':id')
@@ -78,8 +78,8 @@ export class ChannelsController {
 	@ApiOkResponse({
 		type: GetChannelUsersDto
 	})
-	async createChannelUserByJoin(@Param('id') id: number, @Body() body: CreateChannelUserDto) {
-		return await this.channelsService.createChannelUsers(id);
+	async createChannelUserByJoin(@Param('id') id: number, @Body() body: CreateChannelUsersDto) {
+		return await this.channelsService.createChannelUsersByJoin(id, body);
 	}
 	
 	@Post(':id/add/:user_id')
@@ -88,7 +88,7 @@ export class ChannelsController {
 		type: GetChannelsDto
 	})
 	async createChannelUserByAdd(@Param('id') id: number, @Param('user_id') user_id: string) {
-		return await this.channelsService.
+		return await this.channelsService.createChannelUserByAdd(id, user_id);
 	}
 	
 	
@@ -107,7 +107,16 @@ export class ChannelsController {
 	
 	@Delete(':id')
 	@ApiOperation({ summary: 'Leave channel' })
-	async deleteChannelUsers(@Param('id') id: number) {
-		return await this.channelsService.deleteChannelUsers(id);
+	async deleteChannelUsersByLeave(@Param('id') id: number) {
+		return await this.channelsService.deleteChannelUsersByLeave(id);
+	}
+	
+	@Delete(':id/kick/:user_id')
+	@ApiOperation({ summary: 'Kick user from channel' })
+	@ApiOkResponse({
+		type: GetChannelUsersDto
+	})
+	async deleteChannelUsers(@Param('id') id: number, @Param('user_id') user_id: string) {
+		return await this.channelsService.deleteChannelUsersByKick(id, user_id);
 	}
 }
