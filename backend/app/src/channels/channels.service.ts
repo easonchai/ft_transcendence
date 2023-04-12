@@ -243,6 +243,19 @@ export class ChannelsService {
 	
 	// Delete
 	
+	async deleteChannels(id: number, tmp_user_id: string = ''): Promise<GetChannelsDto> {
+		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
+			where: { user_id_channel_id: { user_id: tmp_user_id, channel_id: +id } }
+		})
+		if (channelUser.type !== 'OWNER') throw new HttpException('Must be an OWNER to delete channel', HttpStatus.BAD_REQUEST);
+
+		await this.prisma.channels.findUniqueOrThrow({ where: { id: +id } });
+		const deleted = await this.prisma.channels.delete({
+			where: { id: +id }
+		})
+		return deleted;
+	}
+	
 	async deleteChannelUsersByKick(id: number, user_id: string, tmp_user_id: string = ''): Promise<GetChannelUsersDto> {
 		const user = tmp_user_id === '' ?
 			await this.prisma.user.findFirst() :
@@ -294,19 +307,6 @@ export class ChannelsService {
 				include: { user: true }
 			})
 		}
-	}
-	
-	async deleteChannels(id: number, tmp_user_id: string): Promise<GetChannelsDto> {
-		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: tmp_user_id, channel_id: +id } }
-		})
-		if (channelUser.type !== 'OWNER') throw new HttpException('Must be an OWNER to delete channel', HttpStatus.BAD_REQUEST);
-
-		await this.prisma.channels.findUniqueOrThrow({ where: { id: +id } });
-		const deleted = await this.prisma.channels.delete({
-			where: { id: +id }
-		})
-		return deleted;
 	}
 	
 	async deleteChannelBannedUsers(id: number, user_id: string, tmp_user_id: string = ''): Promise<GetChannelBannedUsers> {
