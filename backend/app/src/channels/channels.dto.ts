@@ -1,7 +1,7 @@
 import { ApiHideProperty, ApiProperty, OmitType, PartialType } from "@nestjs/swagger";
 import { ChannelMessages, Channels, ChannelType, ChannelUsers, ChannelUserType, User, UserStatus, ChannelBannedUsers } from "@prisma/client";
-import { Type } from "class-transformer";
-import { IsEnum } from 'class-validator'
+import { Socket } from 'socket.io'
+import { Allow, IsDate, IsEnum } from 'class-validator'
 
 class CreatedUpdated {
 	@ApiHideProperty()
@@ -120,6 +120,7 @@ export class CreateChannelUsersDto {
 	type?: ChannelUserType
 	
 	@ApiProperty()
+	@IsDate()
 	mute_time?: Date
 }
 
@@ -129,3 +130,9 @@ export class UpdateChannelDto extends PartialType(CreateChannelDto) {}
 
 export class UpdateChannelUserDto extends PartialType(CreateChannelUsersDto) {}
 
+// Socket
+
+export class ChannelsSocketMessageDto {
+	@Allow()
+	message: string;
+}
