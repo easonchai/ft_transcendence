@@ -7,17 +7,14 @@ import { MatchesService } from "src/matches/matches.service";
 
 const usersCreate = [
 	{
-		displayname: 'John',
 		name: 'John Doe',
 		email: 'john@test.com'
 	},
 	{
-		displayname: 'Ash',
 		name: 'Ash Bee',
 		email: 'ash@test.com',
 	},
 	{
-		displayname: 'Docker',
 		name: 'Docker Compose',
 		email: 'docker@test.com'
 	}

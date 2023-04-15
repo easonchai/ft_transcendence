@@ -18,12 +18,14 @@ services:
       - test_database
     env_file:
       - .env
+
   frontend:
     image: frontend:v1
     container_name: frontend
     build: ./frontend
     restart: always
     volumes:
+      - /app/node_modules
       - ./frontend/app:/app
     networks:
       - fortytwo
@@ -31,6 +33,9 @@ services:
       - 3001:3001
     depends_on:
       - database
+      - test_database
+      - backend
+
   database:
     image: postgres:15
     container_name: postgres
@@ -41,6 +46,7 @@ services:
       - .env
     networks:
       - fortytwo
+
   test_database:
     image: postgres:15
     container_name: postgres_test

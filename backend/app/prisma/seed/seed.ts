@@ -6,7 +6,6 @@ const seededUsers: User[] = [];
 
 const seedUser = async (): Promise<void> => {
 	const users: Prisma.UserCreateInput[] = Array.from({ length: 10 }, () => ({
-			displayname: faker.name.fullName(),
 			name: faker.name.firstName(),
 			email: faker.internet.email(),
 		}));
@@ -86,7 +85,7 @@ const seedMessages = async(): Promise<void> => {
 		where: { id: seededUsers[1].id },
 		data: {
 			senders: { create: [
-				{ message: `Hello, I am ${seededUsers[1].displayname}`, receiver_id: seededUsers[2].id },
+				{ message: `Hello, I am ${seededUsers[1].name}`, receiver_id: seededUsers[2].id },
 			] }
 		}
 	})
@@ -94,7 +93,7 @@ const seedMessages = async(): Promise<void> => {
 		where: { id: seededUsers[2].id },
 		data: {
 			senders: { create: [
-				{ message: `Hello, I am ${seededUsers[2].displayname}`, receiver_id: seededUsers[1].id },
+				{ message: `Hello, I am ${seededUsers[2].name}`, receiver_id: seededUsers[1].id },
 			] }
 		}
 	})

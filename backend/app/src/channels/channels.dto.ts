@@ -59,7 +59,7 @@ export class GetUserDto extends CreatedUpdated implements User {
 	image: string | null;
 	
 	@ApiProperty()
-	displayname: string;
+	two_factor: boolean;
 	
 	@ApiProperty({ enum: [UserStatus] })
 	status: UserStatus;
