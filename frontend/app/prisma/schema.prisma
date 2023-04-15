@@ -1,0 +1,201 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "darwin-arm64", "linux-arm64-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ONLINE
+  OFFLINE
+  IN_GAME
+}
+
+enum ChannelType {
+  PRIVATE
+  PROTECTED
+  PUBLIC
+}
+
+enum ChannelUserType {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
+}
+
+// --- NextAuth Prisma Schema ---
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+	created_at				BigInt	// 42 NextAuth
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id               String               @id @default(cuid())
+  name             String               @unique
+  email            String?              @unique
+  emailVerified    DateTime?
+  image            String?
+  accounts         Account[]
+  sessions         Session[]
+  // --- Added for transcendence ---
+  // displayname      String               @unique
+  status           UserStatus           @default(OFFLINE)
+  two_factor       Boolean              @default(false)
+  matches          UserMatch[]
+  blocked          UserBlocks[]         @relation("blocker")
+  blocked_by       UserBlocks[]         @relation("blocked_by")
+  friends          UserFriends[]        @relation("friend")
+  friend_of        UserFriends[]        @relation("friend_of")
+  senders          UserMessages[]       @relation("sender")
+  receivers        UserMessages[]       @relation("receiver")
+  channels         ChannelUsers[]
+  banned_channels  ChannelBannedUsers[]
+  channel_messeges ChannelMessages[]
+  created_at       DateTime             @default(now())
+  updated_at       DateTime             @updatedAt
+  // -------------
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// --- transcendence schema --- 
+
+model Match {
+  id         Int         @id @default(autoincrement())
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  users      UserMatch[]
+}
+
+model UserMatch {
+  score Int
+
+  match_id Int
+  match    Match  @relation(fields: [match_id], references: [id], onDelete: Cascade)
+  user_id  String
+  user     User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([match_id, user_id])
+}
+
+model UserBlocks {
+  blocked_by_id String
+  blocked_by    User     @relation("blocker", fields: [blocked_by_id], references: [id], onDelete: Cascade)
+  blocked_id    String
+  blocked       User     @relation("blocked_by", fields: [blocked_id], references: [id], onDelete: Cascade)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@id([blocked_by_id, blocked_id])
+}
+
+model UserFriends {
+  user_id    String
+  user       User         @relation("friend", fields: [user_id], references: [id], onDelete: Cascade)
+  friend_id  String
+  friend     User         @relation("friend_of", fields: [friend_id], references: [id], onDelete: Cascade)
+  status     FriendStatus
+  created_at DateTime     @default(now())
+  update_at  DateTime     @updatedAt
+
+  @@id([user_id, friend_id])
+}
+
+model UserMessages {
+  id          Int      @id @default(autoincrement())
+  sender_id   String
+  sender      User     @relation("sender", fields: [sender_id], references: [id], onDelete: Cascade)
+  receiver_id String
+  receiver    User     @relation("receiver", fields: [receiver_id], references: [id], onDelete: Cascade)
+  message     String   @db.Text
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model Channels {
+  id               Int                  @id @default(autoincrement())
+  name             String
+  password         String?              @db.Text
+  type             ChannelType
+  users            ChannelUsers[]
+  banned_users     ChannelBannedUsers[]
+  channel_messeges ChannelMessages[]
+  created_at       DateTime             @default(now())
+  updated_at       DateTime             @updatedAt
+}
+
+model ChannelUsers {
+  user_id    String
+  user       User            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  channel_id Int
+  channel    Channels        @relation(fields: [channel_id], references: [id], onDelete: Cascade)
+  mute_time  DateTime        @default(now())
+  type       ChannelUserType
+  created_at DateTime        @default(now())
+  updated_at DateTime        @updatedAt
+
+  @@id([user_id, channel_id])
+}
+
+model ChannelBannedUsers {
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  channel_id Int
+  channel    Channels @relation(fields: [channel_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@id([user_id, channel_id])
+}
+
+model ChannelMessages {
+  id         Int      @id @default(autoincrement())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  channel_id Int
+  channel    Channels @relation(fields: [channel_id], references: [id], onDelete: Cascade)
+  message    String   @db.Text
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
