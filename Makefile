@@ -5,6 +5,8 @@ build:
 	docker compose build --no-cache
 
 up:
+	mkdir -p ./frontend/app/prisma
+	cp ./backend/app/prisma/schema.prisma ./frontend/app/prisma/
 	docker compose up -d
 
 start:
