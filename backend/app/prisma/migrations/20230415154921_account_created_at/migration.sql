@@ -24,6 +24,7 @@ CREATE TABLE "Account" (
     "scope" TEXT,
     "id_token" TEXT,
     "session_state" TEXT,
+    "created_at" BIGINT NOT NULL,
 
     CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
 );
@@ -45,8 +46,8 @@ CREATE TABLE "User" (
     "email" TEXT,
     "emailVerified" TIMESTAMP(3),
     "image" TEXT,
-    "displayname" TEXT NOT NULL,
     "status" "UserStatus" NOT NULL DEFAULT 'OFFLINE',
+    "two_factor" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -80,12 +81,12 @@ CREATE TABLE "UserMatch" (
 
 -- CreateTable
 CREATE TABLE "UserBlocks" (
-    "blocker_id" TEXT NOT NULL,
+    "blocked_by_id" TEXT NOT NULL,
     "blocked_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "UserBlocks_pkey" PRIMARY KEY ("blocker_id","blocked_id")
+    CONSTRAINT "UserBlocks_pkey" PRIMARY KEY ("blocked_by_id","blocked_id")
 );
 
 -- CreateTable
@@ -170,9 +171,6 @@ CREATE UNIQUE INDEX "User_name_key" ON "User"("name");
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_displayname_key" ON "User"("displayname");
-
--- CreateIndex
 CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token");
 
 -- CreateIndex
@@ -191,7 +189,7 @@ ALTER TABLE "UserMatch" ADD CONSTRAINT "UserMatch_match_id_fkey" FOREIGN KEY ("m
 ALTER TABLE "UserMatch" ADD CONSTRAINT "UserMatch_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UserBlocks" ADD CONSTRAINT "UserBlocks_blocker_id_fkey" FOREIGN KEY ("blocker_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "UserBlocks" ADD CONSTRAINT "UserBlocks_blocked_by_id_fkey" FOREIGN KEY ("blocked_by_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserBlocks" ADD CONSTRAINT "UserBlocks_blocked_id_fkey" FOREIGN KEY ("blocked_id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
