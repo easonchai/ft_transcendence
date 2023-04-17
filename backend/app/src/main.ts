@@ -5,6 +5,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { AppExceptionFilter } from './exceptions/app_exception.filter';
 import { SocketIOAdapter } from './app_socket_io.adapter';
 import { NextFunction } from 'express';
+import { AuthGuard } from './guards/auth.guards';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

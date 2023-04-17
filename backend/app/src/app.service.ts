@@ -12,10 +12,7 @@ export class AppService {
 export class PrismaService extends PrismaClient implements OnModuleInit {
 	constructor() {
 		super({
-			errorFormat: 'pretty',
-			datasources: {
-				db: { url: process.env.TESTING === '1' ? process.env.TEST_DATABASE_URL : process.env.DATABASE_URL }
-			}
+			errorFormat: 'pretty'
 		})
 	}
 	

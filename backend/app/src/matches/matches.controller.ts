@@ -2,6 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetMatchesDto, GetMatchesStatsDto } from './matches.dto';
+import { UserId } from 'src/decorators/user_id.decorators';
 
 @ApiTags('Match')
 @Controller('matches')

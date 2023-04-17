@@ -26,9 +26,9 @@ export class ChannelsService {
 		return channel
 	}
 	
-	async getChannelMessegesByChannelId(id: number, tmp_user_id: string = ''): Promise<GetChannelMessagesDto[]> {
+	async getChannelMessegesByChannelId(id: number, auth_user_id: string = ''): Promise<GetChannelMessagesDto[]> {
 		const user = await this.prisma.user.findUniqueOrThrow({
-			where: { id: tmp_user_id },
+			where: { id: auth_user_id },
 			include: { blocked: true, blocked_by: true, channels: true }
 		});
 		
@@ -56,7 +56,7 @@ export class ChannelsService {
 		return messages;
 	}
 	
-	async getChannelUsersByChannelId(id: number, tmp_user_id: string = ''): Promise<GetChannelUsersDto[]> {
+	async getChannelUsersByChannelId(id: number, auth_user_id: string = ''): Promise<GetChannelUsersDto[]> {
 		const channelUsers = await this.prisma.channelUsers.findMany({
 			where: { channel_id: +id },
 			include: {
@@ -65,7 +65,7 @@ export class ChannelsService {
 		})
 		
 		for (const user of channelUsers) {
-			if (user.user_id === tmp_user_id) return channelUsers;
+			if (user.user_id === auth_user_id) return channelUsers;
 		}
 		
 		const channel = await this.prisma.channels.findUnique({ where: { id: +id } });
@@ -73,9 +73,9 @@ export class ChannelsService {
 		else throw new HttpException('Unauthrorized to view channel users', HttpStatus.BAD_REQUEST);
 	}
 	
-	async getChannelBannedUsers(id: number, tmp_user_id: string = ''): Promise<GetChannelBannedUsers[]> {
+	async getChannelBannedUsers(id: number, auth_user_id: string = ''): Promise<GetChannelBannedUsers[]> {
 		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: tmp_user_id, channel_id: +id } }
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: +id } }
 		})
 		if (channelUser.type === 'MEMBER') throw new HttpException('MEMBER is not allowed to view channel banned users', HttpStatus.BAD_REQUEST);
 		
@@ -89,12 +89,12 @@ export class ChannelsService {
 	
 	// Post
 	
-	async createChannel(body: CreateChannelDto, tmp_user_id: string = ''): Promise<GetChannelsDto> {
+	async createChannel(body: CreateChannelDto, auth_user_id: string = ''): Promise<GetChannelsDto> {
 		let user: User;
-		if (tmp_user_id === '') {
+		if (auth_user_id === '') {
 			user = await this.prisma.user.findFirst();
 		} else {
-			user = await this.prisma.user.findUnique({ where: { id: tmp_user_id } });
+			user = await this.prisma.user.findUnique({ where: { id: auth_user_id } });
 		}
 		
 		if (body.type == "PROTECTED" && !body.password) throw new HttpException("PROTECTED password must have password", HttpStatus.BAD_REQUEST)
@@ -115,9 +115,9 @@ export class ChannelsService {
 		return created;
 	}
 	
-	async createChannelMessages(id: number, body: CreateChannelMessagesDto, tmp_user_id: string = ''): Promise<GetChannelMessagesDto> {
+	async createChannelMessages(id: number, body: CreateChannelMessagesDto, auth_user_id: string = ''): Promise<GetChannelMessagesDto> {
 		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: tmp_user_id, channel_id: +id } }
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: +id } }
 		});
 		
 		if (channelUser.mute_time > new Date()) throw new HttpException('Muted user cannot send message', HttpStatus.BAD_REQUEST);
@@ -132,10 +132,10 @@ export class ChannelsService {
 		return created;
 	}
 	
-	async createChannelUsersByJoin(id: number, body: CreateChannelUsersDto, tmp_user_id: string = ''): Promise<GetChannelUsersDto> {
-		const user = tmp_user_id === '' ?	// Testing
+	async createChannelUsersByJoin(id: number, body: CreateChannelUsersDto, auth_user_id: string = ''): Promise<GetChannelUsersDto> {
+		const user = auth_user_id === '' ?	// Testing
 			await this.prisma.user.findFirst() :
-			await this.prisma.user.findUnique({ where: { id: tmp_user_id } });
+			await this.prisma.user.findUnique({ where: { id: auth_user_id } });
 		
 		const channel = await this.prisma.channels.findUnique({ where: { id: +id }, include: { banned_users: true } });
 		if (channel.banned_users.find((obj) => obj.user_id === user.id)) throw new HttpException('Banned user is not allowed to join', HttpStatus.BAD_REQUEST);
@@ -156,9 +156,9 @@ export class ChannelsService {
 		return created;
 	}
 	
-	async createChannelUserByAdd(id: number, user_id: string, tmp_user_id: string = ''): Promise<GetChannelUsersDto> {
+	async createChannelUserByAdd(id: number, user_id: string, auth_user_id: string = ''): Promise<GetChannelUsersDto> {
 		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: tmp_user_id, channel_id: id } }
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: id } }
 		});
 		if (channelUser.type === 'MEMBER') throw new HttpException('Request channel user is not Admin/Owner', HttpStatus.BAD_REQUEST);
 		
@@ -176,9 +176,9 @@ export class ChannelsService {
 		return created;
 	}
 	
-	async createChannelBannedUsers(id: number, user_id: string, tmp_user_id: string = ''): Promise<GetChannelBannedUsers> {
+	async createChannelBannedUsers(id: number, user_id: string, auth_user_id: string = ''): Promise<GetChannelBannedUsers> {
 		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: tmp_user_id, channel_id: +id } }
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: +id } }
 		});
 		const toBeBannedChannelUser = await this.prisma.channelUsers.findUnique({
 			where: { user_id_channel_id: { user_id: user_id, channel_id: +id } }
@@ -200,9 +200,9 @@ export class ChannelsService {
 	
 	// Patch
 	
-	async updateChannel(id: number, body: UpdateChannelDto, tmp_user_id: string = ''): Promise<GetChannelsDto> {
+	async updateChannel(id: number, body: UpdateChannelDto, auth_user_id: string = ''): Promise<GetChannelsDto> {
 		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: tmp_user_id, channel_id: +id } }
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: +id } }
 		})
 		if (channelUser.type === 'MEMBER') throw new HttpException('User is not owner nor admin', HttpStatus.BAD_REQUEST);
 		
@@ -217,9 +217,9 @@ export class ChannelsService {
 		return updated;
 	}
 	
-	async updateChannelUser(id: number, user_id: string, body: UpdateChannelUserDto, tmp_user_id: string = ''): Promise<GetChannelUsersDto> {
+	async updateChannelUser(id: number, user_id: string, body: UpdateChannelUserDto, auth_user_id: string = ''): Promise<GetChannelUsersDto> {
 		const tmp_channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: tmp_user_id, channel_id: id } }
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: id } }
 		});
 		
 		const updatingChannelUser = await this.prisma.channelUsers.findUniqueOrThrow({
@@ -243,9 +243,9 @@ export class ChannelsService {
 	
 	// Delete
 	
-	async deleteChannels(id: number, tmp_user_id: string = ''): Promise<GetChannelsDto> {
+	async deleteChannels(id: number, auth_user_id: string = ''): Promise<GetChannelsDto> {
 		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: tmp_user_id, channel_id: +id } }
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: +id } }
 		})
 		if (channelUser.type !== 'OWNER') throw new HttpException('Must be an OWNER to delete channel', HttpStatus.BAD_REQUEST);
 
@@ -256,10 +256,10 @@ export class ChannelsService {
 		return deleted;
 	}
 	
-	async deleteChannelUsersByKick(id: number, user_id: string, tmp_user_id: string = ''): Promise<GetChannelUsersDto> {
-		const user = tmp_user_id === '' ?
+	async deleteChannelUsersByKick(id: number, user_id: string, auth_user_id: string = ''): Promise<GetChannelUsersDto> {
+		const user = auth_user_id === '' ?
 			await this.prisma.user.findFirst() :
-			await this.prisma.user.findUniqueOrThrow({ where: { id: tmp_user_id } });
+			await this.prisma.user.findUniqueOrThrow({ where: { id: auth_user_id } });
 		
 		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
 			where: { user_id_channel_id: { user_id: user.id, channel_id: +id } }
@@ -286,10 +286,10 @@ export class ChannelsService {
 		return deleted;
 	}
 
-	async deleteChannelUsersByLeave(id: number, tmp_user_id: string = ''): Promise<GetChannelsDto | GetChannelUsersDto> {
-		const user = tmp_user_id === '' ?
+	async deleteChannelUsersByLeave(id: number, auth_user_id: string = ''): Promise<GetChannelsDto | GetChannelUsersDto> {
+		const user = auth_user_id === '' ?
 			await this.prisma.user.findFirst() :
-			await this.prisma.user.findUniqueOrThrow({ where: { id: tmp_user_id } });
+			await this.prisma.user.findUniqueOrThrow({ where: { id: auth_user_id } });
 		
 		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
 			where: { user_id_channel_id: { user_id: user.id, channel_id: +id } }
@@ -309,9 +309,9 @@ export class ChannelsService {
 		}
 	}
 	
-	async deleteChannelBannedUsers(id: number, user_id: string, tmp_user_id: string = ''): Promise<GetChannelBannedUsers> {
+	async deleteChannelBannedUsers(id: number, user_id: string, auth_user_id: string = ''): Promise<GetChannelBannedUsers> {
 		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: tmp_user_id, channel_id: +id } }
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: +id } }
 		})
 		if (channelUser.type === 'MEMBER') throw new HttpException('MEMBER cannot unban user', HttpStatus.BAD_REQUEST);
 		

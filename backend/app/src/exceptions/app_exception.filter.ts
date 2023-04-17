@@ -20,14 +20,17 @@ export class AppExceptionFilter implements ExceptionFilter {
 				case 'P2002': {
 					body.statusCode = HttpStatus.CONFLICT;
 					httpAdapter.reply(ctx.getResponse(), body, body.statusCode);
+					return ;
 				}
 				case 'P2025': {
 					body.statusCode = HttpStatus.NOT_FOUND;
 					httpAdapter.reply(ctx.getResponse(), body, body.statusCode);
+					return ;
 				}
 				default:
 					body.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
 					httpAdapter.reply(ctx.getResponse(), body, body.statusCode);
+					return ;
 			}
 		} else if (exception instanceof Prisma.PrismaClientUnknownRequestError) {
 			if (exception.message.includes('Channels_password_constraint')) {
@@ -37,10 +40,18 @@ export class AppExceptionFilter implements ExceptionFilter {
 			}
 			body.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
 			httpAdapter.reply(ctx.getResponse(), body, body.statusCode);
+			return ;
 		} else if (exception instanceof HttpException) {
 			body.statusCode = exception.getStatus();
 			body.message = exception.message;
 			httpAdapter.reply(ctx.getResponse(), body, body.statusCode);
+			return ;
+		} else {
+			console.log(exception['message']);
+			body.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+			body.message = exception['message'];
+			httpAdapter.reply(ctx.getResponse(), body, body.statusCode);
+			return ;
 		}
 	}
 }
