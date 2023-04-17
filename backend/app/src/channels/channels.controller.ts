@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseFilters } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseFilters } from '@nestjs/common';
 import { ApiHeader, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateChannelDto, CreateChannelMessagesDto, CreateChannelUsersDto, GetChannelBannedUsers, GetChannelMessagesDto, GetChannelsDto, GetChannelUsersDto, UpdateChannelDto, UpdateChannelUserDto } from './channels.dto';
 import { ChannelsService } from './channels.service';
