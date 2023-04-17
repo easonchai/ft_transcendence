@@ -10,7 +10,7 @@ const UserInformation = () => {
 			direction='row'
 			headerBordered
 			bordered
-			extra={[ <Link href="/edit"><Button>Edit</Button></Link> ]}
+			extra={[ <Link key='1' href="/edit"><Button>Edit</Button></Link> ]}
 		>
 			<ProCard>
 				<Statistic title="Name" value="Hiromasa" />

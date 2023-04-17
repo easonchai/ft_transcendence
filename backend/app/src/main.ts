@@ -6,6 +6,7 @@ import { AppExceptionFilter } from './exceptions/app_exception.filter';
 import { SocketIOAdapter } from './app_socket_io.adapter';
 import { NextFunction } from 'express';
 import { AuthGuard } from './guards/auth.guards';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -38,6 +39,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api', app, document);
 
+	app.use(cookieParser());
   /**
    * Remember to add Prisma NestJS enableShutdownHooks.
    */

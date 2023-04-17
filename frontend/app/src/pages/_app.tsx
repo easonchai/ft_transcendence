@@ -5,6 +5,7 @@ import Layout from '@/components/Layout';
 import dynamic from 'next/dynamic';
 import { PropsWithChildren } from 'react';
 import { useRouter } from 'next/router';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 const DynamicProLayout = dynamic(() => import('../components/Layout'), { ssr: false });
 
@@ -22,21 +23,22 @@ function Auth({ children }: PropsWithChildren) {
 }
 
 function MyComponent(props: AppProps) {
-	const { data: session } = useSession();
-	
+	const queryClient = new QueryClient();
 	return (
-		<Auth>
-			<DynamicProLayout>
-				<props.Component { ...props.pageProps } />
-			</DynamicProLayout>
-		</Auth>
+		<QueryClientProvider client={queryClient}>
+			<Auth>
+				<DynamicProLayout>
+					<props.Component { ...props.pageProps } />
+				</DynamicProLayout>
+			</Auth>
+		</QueryClientProvider>
 	)
 }
 
 export default function App(props: AppProps) {
   return (
 		<SessionProvider session={props.pageProps.session}>
-			<MyComponent { ...props } />
+				<MyComponent { ...props } />
 		</SessionProvider>
 	)
 }

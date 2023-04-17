@@ -1,4 +1,4 @@
-import { signOut } from 'next-auth/react'
+import { getSession, signOut } from 'next-auth/react'
 import { PageContainer, ProCard } from '@ant-design/pro-components';
 import { Button, Row, Col, Image } from 'antd';
 import UserInformation from '@/components/UserInformation'
@@ -6,9 +6,10 @@ import UserFriendList from '@/components/UserFriendList';
 import UserAchievements from '@/components/UserAchievements';
 import UserMatchStats from '@/components/UserMatchStats';
 import UserMatchHistory from '@/components/UserMatchHistory';
-
+import { useSession } from 'next-auth/react';
 
 export default function Home() {
+	const {data: session} = useSession();
 	
 	return (
 		<PageContainer

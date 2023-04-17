@@ -1,7 +1,12 @@
+import apiClient from '@/apis/ApiClient'
+import { channelsService } from '@/apis/channelsService'
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { PageContainer, ProCard } from '@ant-design/pro-components'
-import { Button, List, Tag } from 'antd'
-import React from 'react'
+import { Button, List, Tag, message } from 'antd'
+import axios from 'axios'
+import { useRouter } from 'next/router'
+import React, { useEffect, useState } from 'react'
+import { useMutation, useQuery } from 'react-query'
 
 const MockData = [
 	{ name: 'Channel 1', type: 'PUBLIC' },
@@ -13,56 +18,94 @@ const MockData = [
 	{ name: 'Channel 7', type: 'PUBLIC' },
 ]
 
+interface ChannelsResponseType {
+	id: number,
+	name: string,
+	type: 'PRIVATE' | 'PROTECTED' | 'PUBLIC'
+}
+
 const index = () => {
+	const router = useRouter();
+	const [channels, setChannels] = useState<ChannelsResponseType[]>([]);
+	const [myChannels, setMyChannels] = useState<ChannelsResponseType[]>([]);
+	const [messageApi, contextHolder] = message.useMessage();
+	
+	const { isLoading: getChannelsIsLoading } = useQuery(
+		'getChannels',
+		channelsService.getChannels,
+		{
+			onSuccess: (res) => {setChannels(res)},
+			onError: () => {messageApi.error({ content: 'Fetch channels failed' })},
+		}
+	)
+	
+	const joinChannels = useMutation({
+		mutationFn: async (id: number) => await channelsService.joinChannels(id),
+		onSuccess: (res) => { router.push(`/channels/${res.id}`) },
+		onError: () => { messageApi.error({ content: 'Failed to join channel' }) }
+	})
+	// todo
+	// HERE
+	
+	// const { isLoading: getMyChannelsIsLoading } = useQuery(
+	// 	'getMyChannels',
+	// 	channelsService.getMyChannels
+	// )
+	
 	return (
-		<PageContainer
-			extra={[<Button icon={<PlusOutlined />}>Create</Button>]}
-		>
-			<ProCard
-				wrap={true}
+		<>
+			{contextHolder}
+			<PageContainer
+				extra={[<Button key='1' icon={<PlusOutlined />}>Create</Button>]}
+				loading={joinChannels.isLoading}
 			>
 				<ProCard
-					title="Your channels"
-					headerBordered
-					bordered
+					wrap={true}
 				>
-					<List 
-						dataSource={MockData}
-						renderItem={(item, index) => (
-							<List.Item 
-								key={index}
-								actions={[
-									<Button>Chat</Button>
-								]}
-							>
-								<List.Item.Meta title={`${index + 1}. ${item.name}`} />
-							</List.Item>
-						)}
-					/>
+					<ProCard
+						title="Your channels"
+						headerBordered
+						bordered
+					>
+						<List
+							dataSource={MockData}
+							renderItem={(item, index) => (
+								<List.Item 
+									key={index}
+									actions={[
+										<Button>Chat</Button>
+									]}
+								>
+									<List.Item.Meta title={`${index + 1}. ${item.name}`} />
+								</List.Item>
+							)}
+						/>
+					</ProCard>
+					<ProCard
+						title="Channels list"
+						headerBordered
+						bordered
+						className='mt-5'
+					>
+						<List 
+							loading={getChannelsIsLoading}
+							dataSource={channels}
+							renderItem={(item, index) => (
+								<List.Item 
+									key={index}
+									actions={[
+										<Button onClick={() => joinChannels.mutate(item.id)}>Join</Button>
+									]}
+								>
+									<List.Item.Meta title={`${index + 1}. ${item.name}`} />
+									<Tag color="blue">{item.type}</Tag>
+								</List.Item>
+							)}
+						/>
+					</ProCard>
 				</ProCard>
-				<ProCard
-					title="Channels list"
-					headerBordered
-					bordered
-					className='mt-5'
-				>
-					<List 
-						dataSource={MockData}
-						renderItem={(item, index) => (
-							<List.Item 
-								key={index}
-								actions={[
-									<Button>Join</Button>
-								]}
-							>
-								<List.Item.Meta title={`${index + 1}. ${item.name}`} />
-								<Tag color="blue">{item.type}</Tag>
-							</List.Item>
-						)}
-					/>
-				</ProCard>
-			</ProCard>
-		</PageContainer>
+			</PageContainer>
+		</>
 	)
 }
 
