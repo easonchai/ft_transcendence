@@ -1,3 +1,4 @@
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { PageContainer, ProCard } from '@ant-design/pro-components'
 import { Button, List, Tag } from 'antd'
 import React from 'react'
@@ -14,12 +15,36 @@ const MockData = [
 
 const index = () => {
 	return (
-		<PageContainer>
-			<ProCard>
+		<PageContainer
+			extra={[<Button icon={<PlusOutlined />}>Create</Button>]}
+		>
+			<ProCard
+				wrap={true}
+			>
+				<ProCard
+					title="Your channels"
+					headerBordered
+					bordered
+				>
+					<List 
+						dataSource={MockData}
+						renderItem={(item, index) => (
+							<List.Item 
+								key={index}
+								actions={[
+									<Button>Chat</Button>
+								]}
+							>
+								<List.Item.Meta title={`${index + 1}. ${item.name}`} />
+							</List.Item>
+						)}
+					/>
+				</ProCard>
 				<ProCard
 					title="Channels list"
 					headerBordered
 					bordered
+					className='mt-5'
 				>
 					<List 
 						dataSource={MockData}
