@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { FriendRequestStatus, UserFriends } from "@prisma/client";
+import { FriendRequestStatus, Prisma, UserFriends } from "@prisma/client";
 import { UserResponseDto } from 'src/user/dto';
-import { UserFriendResponseDto } from './dto';
+import { UserFriendDto, UserFriendResponseDto } from './dto';
 
 @Injectable()
 export class UserFriendService {
@@ -28,7 +28,7 @@ export class UserFriendService {
 				friend: true,
 			},
 		})
-		return friends.map(friend => new UserFriendResponseDto(friend, friend.user, friend.friend));
+		return friends.map(friend => new UserFriendResponseDto(friend, friend.user, friend.friend, id));
 	}
 
 	async getAllFriendRequests(id: string): Promise<UserFriendResponseDto[]> {
@@ -50,7 +50,7 @@ export class UserFriendService {
 				friend: true,
 			},
 		})
-		return friends.map(friend => new UserFriendResponseDto(friend, friend.user, friend.friend));
+		return friends.map(friend => new UserFriendResponseDto(friend, friend.user, friend.friend, id));
 	}
 
 	async createFriendRequest(id: string, friendId: string) {
@@ -72,42 +72,90 @@ export class UserFriendService {
 		});
 		if (relation && (relation.status !== 'DECLINED'))
 			throw new BadRequestException('A friend request has already been sent to this user.');
+		if (relation && (relation.status === 'DECLINED'))
+			return this.updateFriendRequest(id, friendId, 'PENDING');
 		const newRelation = await this.prisma.userFriends.create({ data: { user_id: id, friend_id: friendId } });
 		return newRelation;
 	}
 
-	async responseFriendRequest(id: string, friendId: string, request: UserFriends) {
+	async updateFriendRequest(id: string, friendId: string, status: FriendRequestStatus) {
 		if (id === friendId)
 			throw new BadRequestException('You cannot add yourself as a friend.');
+		const where: Prisma.UserFriendsWhereUniqueInput = {
+			user_id_friend_id: {
+				user_id: friendId,
+				friend_id: id,
+			},
+		};
 		const relation = await this.prisma.userFriends.findFirst({
 			where: {
 				OR: [
 					{
-						user_id: id,
-						friend_id: friendId,
+						user_id: friendId,
+						friend_id: id,
+						status: 'PENDING'
 					},
 					{
 						user_id: friendId,
 						friend_id: id,
+						status: 'DECLINED'
+					},
+					{
+						user_id: id,
+						friend_id: friendId,
+						status: 'DECLINED'
 					}
 				]
-			}
+			},
 		});
 		if (!relation)
-			throw new BadRequestException('There is no friend request between you and the user!');
-		return this.prisma.userFriends.update({}
-			// where: {
-				// OR: [
-				// 	{
-				// 		user_id: id,
-				// 		friend_id: friendId,
-				// 	},
-				// 	{
-				// 		user_id: friendId,
-				// 		friend_id: id,
-				// 	}
-				// ]
-			// }
-		);
+			throw new BadRequestException('There is no pending friend request between you and the user!');
+
+
+		const updatedStatus = await this.prisma.userFriends.update({
+			where,
+			data: {
+				status: status,
+			},
+		});
+		return (new UserFriendResponseDto(updatedStatus, null, null, id));
+	}
+
+	async acceptFriendRequest(id: string, friendId: string) {
+		return this.updateFriendRequest(id, friendId, 'ACCEPTED');
+	}
+
+	async declineFriendRequest(id: string, friendId: string) {
+		return this.updateFriendRequest(id, friendId, 'DECLINED');
+	}
+
+	async deleteFriend(id: string, friendId: string) {
+		const relation = await this.prisma.userFriends.findFirst({
+			where: {
+				OR: [
+					{
+						user_id: friendId,
+						friend_id: id,
+						status: 'ACCEPTED'
+					},
+					{
+						user_id: id,
+						friend_id: friendId,
+						status: 'ACCEPTED'
+					}
+				]
+			},
+		});
+		if (!relation)
+			throw new BadRequestException('No existing friendship');
+		const where: Prisma.UserFriendsWhereUniqueInput = {
+			user_id_friend_id: {
+				user_id: friendId,
+				friend_id: id,
+			},
+		};
+		return this.prisma.userFriends.delete({
+			where,
+		})
 	}
 }

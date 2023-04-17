@@ -3,6 +3,10 @@ import { UserStatus } from "@prisma/client";
 import { IsBoolean, IsNumber, IsString } from "class-validator";
 
 export class UserDto {
+	@ApiProperty({ description: 'Player id' })
+	@IsString()
+	id: string;
+
 	@ApiProperty({ description: 'Player defined name' })
 	@IsString()
 	displayname: string;
