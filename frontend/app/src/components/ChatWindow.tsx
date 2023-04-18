@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { ProCard } from '@ant-design/pro-components'
 import { Avatar, Col, Row, Typography } from 'antd';
 import { ChannelMessagesProps, ChannelUsersProps } from '@/apis/channelsService';
@@ -13,15 +13,23 @@ interface ChatWindowProps {
 
 const ChatWindow = (props: ChatWindowProps) => {
 	const { data: session } = useSession();
+	const messageRef = useRef<HTMLDivElement>(null);
+	
+	useEffect(() => {
+		if (messageRef.current) {
+			messageRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+		};
+	}, [props.chats])
 	
 	return (
 		<ProCard bordered style={{ overflowY: 'scroll' }}>
 			<div className='h-[60vh]'>
 				{
 					props.chats.map((item, index) => {
+						const rowProps = index === (props.chats.length - 1) ? { ref: messageRef } : {}
 						const channeluser = props.channelUsers.find((obj) => obj.user_id === item.user_id)?.user;
 						return session?.user.id === item.user_id ? (
-							<Row key={index} className='py-3' gutter={5} align={'middle'}>
+							<Row key={index} className='py-3' gutter={5} align={'middle'} {...rowProps}>
 									<Col flex={'auto'} className='text-right'>
 										<div>
 											<Typography.Text type='secondary'>{channeluser?.name} - {moment(item.created_at).format('LLL')}</Typography.Text>
@@ -33,7 +41,7 @@ const ChatWindow = (props: ChatWindowProps) => {
 									</Col>
 							</Row>
 						) : (
-							<Row key={index} className='py-3' gutter={5} align={'middle'}>
+							<Row key={index} className='py-3' gutter={5} align={'middle'} {...rowProps}>
 									<Col className='text-right'>
 										<Avatar src={`https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />
 									</Col>

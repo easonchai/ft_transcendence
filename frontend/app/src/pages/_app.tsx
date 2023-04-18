@@ -3,9 +3,11 @@ import type { AppProps } from 'next/app'
 import { SessionProvider, useSession } from "next-auth/react"
 import Layout from '@/components/Layout';
 import dynamic from 'next/dynamic';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { ConfigProvider } from 'antd';
+import locale from 'antd/locale/en_US'
 
 const DynamicProLayout = dynamic(() => import('../components/Layout'), { ssr: false });
 
@@ -24,12 +26,15 @@ function Auth({ children }: PropsWithChildren) {
 
 function MyComponent(props: AppProps) {
 	const queryClient = new QueryClient();
+	
 	return (
 		<QueryClientProvider client={queryClient}>
 			<Auth>
-				<DynamicProLayout>
-					<props.Component { ...props.pageProps } />
-				</DynamicProLayout>
+				<ConfigProvider locale={locale}>
+					<DynamicProLayout>
+						<props.Component { ...props.pageProps } />
+					</DynamicProLayout>
+				</ConfigProvider>
 			</Auth>
 		</QueryClientProvider>
 	)

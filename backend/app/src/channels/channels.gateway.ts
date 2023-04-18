@@ -39,8 +39,6 @@ export class ChannelsGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 	@UseGuards(WsAuthGuard)
 	@SubscribeMessage('channelMessages')
 	async handleChannelMessages(@ConnectedSocket() client: Socket, @MessageBody() body: ChannelsSocketMessageDto, @GatewayUserId() auth_user_id: string) {
-		console.log('auth_user_id', auth_user_id);
-		console.log('body', body)
 		const channelId: number = parseInt(client.handshake.query.id.toString())
 		const created = await this.channelsService.createChannelMessages(channelId, body, auth_user_id);
 		if (created) this.io.emit('channelMessages', created); // emit or broadcast ?

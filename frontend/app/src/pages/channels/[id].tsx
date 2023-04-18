@@ -1,18 +1,20 @@
 import { ChannelMessagesProps, channelsService, ChannelUsersProps } from '@/apis/channelsService';
 import ChatWindow from '@/components/ChatWindow';
 import { PageContainer, ProCard } from '@ant-design/pro-components';
-import { Avatar, Button, Col, Input, List, Row, Space, Tag, message } from 'antd';
+import { Avatar, Button, Col, DatePicker, Form, Input, List, Modal, Row, Space, Tag, message } from 'antd';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
+import React, { SetStateAction, useEffect, useState } from 'react'
 import { useQuery } from 'react-query';
 import { io, Socket } from 'socket.io-client';
-
+import dayjs from 'dayjs'
 
 const ChannelsChat = () => {
 	const router = useRouter();
 	const { id } = router.query;
 	const [messageApi, contextHolder] = message.useMessage();
+	const [modelIsOpen, setModalIsopen] = useState<boolean>(false);
+	const [ muteTime, setMuteTime ] = useState<Date>(new Date());
 	const [channelName, setChannelName] = useState<string>('');
 	const [channelUsers, setChannelUsers] = useState<ChannelUsersProps[]>([]);
 	const [me, setMe] = useState<ChannelUsersProps>();
@@ -82,8 +84,6 @@ const ChannelsChat = () => {
 	}, [])
 
 	const emitChannelMessages = () => {
-		console.log(msg);
-		console.log(channelMessages);
 		socket?.emit('channelMessages', { message: msg });
 		setMsg('');
 	}
@@ -117,7 +117,7 @@ const ChannelsChat = () => {
 											actions={
 												me?.type !== 'MEMBER' && me !== item && item.type !== 'OWNER' ? (
 													[ 
-														<Button danger size='small'>Mute</Button>,
+														<Button danger size='small' onClick={() => setModalIsopen(true)}>Mute</Button>,
 														<Button type="primary" danger size='small'>Kick</Button>
 													]
 												) : undefined
@@ -151,7 +151,48 @@ const ChannelsChat = () => {
 					</Row>
 				</ProCard>
 			</PageContainer>
+			<MuteChannelUserModal {...{
+					modalIsOpen: modelIsOpen, 
+					setModalIsOpen: setModalIsopen,
+					muteTime: muteTime,
+					setMuteTime: setMuteTime
+				}} 
+			/>
 		</>
+	)
+}
+
+interface MuteChannelUserModalProps {
+	modalIsOpen: boolean
+	setModalIsOpen: React.Dispatch<SetStateAction<boolean>>
+	muteTime: Date
+	setMuteTime: React.Dispatch<SetStateAction<Date>>
+}
+
+const MuteChannelUserModal = (props: MuteChannelUserModalProps) => {
+	const [form] = Form.useForm<{mute_time: Date}>();
+	
+	return (
+		<Modal
+			title="Mute user"
+			open={props.modalIsOpen}
+			onCancel={() => props.setModalIsOpen(false)}
+			onOk={() => console.log(props.muteTime)}
+			okButtonProps={{ type: 'default' }}
+			cancelButtonProps={{ danger: true }}
+			okText={'Submit'}
+			cancelText={'Cancel'}
+		>
+			<Form form={form} autoComplete='off' layout='vertical'>
+				<Form.Item<dayjs.Dayjs> name="mute_time" label="End time" initialValue={dayjs(props.muteTime)} required={true}>
+					<DatePicker 
+						className='w-full' 
+						showTime 
+						onChange={(date) => { props.setMuteTime(new Date(date ? date.toISOString() : '')) }}
+					/>
+				</Form.Item>
+			</Form>
+		</Modal>
 	)
 }
 
