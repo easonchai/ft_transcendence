@@ -41,11 +41,9 @@ const index = () => {
 	
 	const joinChannels = useMutation({
 		mutationFn: async (id: number) => await channelsService.joinChannels(id),
-		onSuccess: (res) => { router.push(`/channels/${res.id}`) },
-		onError: () => { messageApi.error({ content: 'Failed to join channel' }) }
+		onSuccess: (res) => { router.push({pathname: `/channels/${res.channel_id}`, query: { success: 1 }}) },
+		onError: (e: any) => { messageApi.error({ content: e.message ?? 'Failed to join channel' }) }
 	})
-	// todo
-	// HERE
 	
 	// const { isLoading: getMyChannelsIsLoading } = useQuery(
 	// 	'getMyChannels',
@@ -63,7 +61,7 @@ const index = () => {
 					wrap={true}
 				>
 					<ProCard
-						title="Your channels"
+						title="My channels"
 						headerBordered
 						bordered
 					>

@@ -34,7 +34,7 @@ const chat = () => {
 					bordered
 					bodyStyle={{ display: 'block' }}
 				>
-					<ChatWindow chats={Messsages} ></ChatWindow>
+					<ChatWindow chats={Messsages} />
 					<Row className='pt-3'>
 						<Space.Compact className='w-full'>
 							<Input placeholder='Type messages here...' />

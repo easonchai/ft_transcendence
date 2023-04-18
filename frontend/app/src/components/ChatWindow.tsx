@@ -25,7 +25,7 @@ const ChatWindow = (props: ChatWindowProps) => {
 									<Row gutter={10} align={'middle'}>
 										<Col span={18} className='text-right'>
 											<div>
-												<Typography.Text type='secondary'>{item.created_at}</Typography.Text>
+												<Typography.Text type='secondary'>{item.name} - {item.created_at}</Typography.Text>
 											</div>
 											{item.messages}
 										</Col>
@@ -44,7 +44,7 @@ const ChatWindow = (props: ChatWindowProps) => {
 										</Col>
 										<Col span={18}>
 											<div>
-												<Typography.Text type='secondary'>{item.created_at}</Typography.Text>
+												<Typography.Text type='secondary'>{item.name} - {item.created_at}</Typography.Text>
 											</div>
 											{item.messages}
 										</Col>
