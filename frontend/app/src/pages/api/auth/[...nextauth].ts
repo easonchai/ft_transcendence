@@ -21,6 +21,14 @@ export const authOptions: AuthOptions = {
 			clientSecret: process.env.FORTYTWO_SECRET!,
 		})
 	],
+	callbacks: {
+		async session({session, token, user}) {
+			
+			// session.user = await MyPrisma.getPrisma().user.findUniqueOrThrow({ where: { id: user.id } });
+			session.user = user;
+			return session;
+		}
+	}
 }
 
 

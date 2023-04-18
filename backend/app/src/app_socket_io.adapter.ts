@@ -15,7 +15,8 @@ export class SocketIOAdapter extends IoAdapter {
 			origin: [
         `http://localhost:${clientPort}`,
         new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`).toString(),
-			]
+			],
+			credentials: true
 		}
 		
 		this.logger.debug('Configuring SocketIOAdapter', cors);
@@ -26,6 +27,7 @@ export class SocketIOAdapter extends IoAdapter {
 		};
 		
 		const server: Server = super.createIOServer(port, optionsWithCors);
+		
 		
 		return server;
 	}

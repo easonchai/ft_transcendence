@@ -11,6 +11,10 @@ export class SocketExceptionFilter extends BaseWsExceptionFilter {
 		else if (exception instanceof Prisma.PrismaClientKnownRequestError) super.catch(new WsException(exception.message), host)
 		else if (exception instanceof Prisma.PrismaClientUnknownRequestError) super.catch(new WsException('Prisma error'), host);
 		else if (exception instanceof HttpException) super.catch(new WsException(exception.message), host);
-		else super.catch(new WsException('Error'), host);
+		else if (exception instanceof WsException) super.catch(exception, host);
+		else {
+			console.log(exception);
+			super.catch(new WsException('Error'), host);
+		}
 	}
 }
