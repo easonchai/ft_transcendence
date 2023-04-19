@@ -12,12 +12,12 @@ const layoutRoutes: MenuDataItem = {
 			name: 'Users',
 			icon: <UserOutlined />,
 		},
-		{
-			key: '2',
-			path: 'match',
-			name: 'Matches',
-			icon: <RobotOutlined />
-		},
+		// {
+		// 	key: '2',
+		// 	path: 'match',
+		// 	name: 'Matches',
+		// 	icon: <RobotOutlined />
+		// },
 		{
 			key: '3',
 			path: 'channels',

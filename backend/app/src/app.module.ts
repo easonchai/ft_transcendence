@@ -6,10 +6,17 @@ import { AppExceptionFilter } from './exceptions/app_exception.filter';
 import { MatchesModule } from './matches/matches.module';
 import { AuthGuard } from './guards/auth.guards';
 import { APP_GUARD } from '@nestjs/core';
+import { RootGateway } from './gateways/root.gateway';
 
 @Module({
   imports: [ChannelsModule, MatchesModule],
   controllers: [AppController],
-  providers: [AppService, PrismaService, AppExceptionFilter, { provide: APP_GUARD, useClass: AuthGuard }],
+  providers: [
+		AppService,
+		PrismaService,
+		AppExceptionFilter, 
+		{ provide: APP_GUARD, useClass: AuthGuard },
+		RootGateway
+	]
 })
 export class AppModule {}

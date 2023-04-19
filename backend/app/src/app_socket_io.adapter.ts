@@ -19,7 +19,7 @@ export class SocketIOAdapter extends IoAdapter {
 			credentials: true
 		}
 		
-		this.logger.debug('Configuring SocketIOAdapter', cors);
+		// this.logger.debug('Configuring SocketIOAdapter', cors);
 		
 		const optionsWithCors: ServerOptions = {
 			...options,
