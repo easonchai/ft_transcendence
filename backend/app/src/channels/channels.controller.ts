@@ -110,7 +110,7 @@ export class ChannelsController {
 		return await this.channelsService.deleteChannels(id, auth_user_id);
 	}
 	
-	@Delete(':id/kick/:user_id')
+	@Delete(':id/user/:user_id')
 	@ApiOperation({ summary: 'Kick user from channel' })
 	@ApiOkResponse({ type: GetChannelUsersDto })
 	async deleteChannelUsersByKick(@Param('id') id: number, @Param('user_id') user_id: string, @UserId() auth_user_id: string) {

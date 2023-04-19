@@ -158,7 +158,7 @@ export class ChannelsService {
 	
 	async createChannelUserByAdd(id: number, user_id: string, auth_user_id: string = ''): Promise<GetChannelUsersDto> {
 		const channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: id } }
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: +id } }
 		});
 		if (channelUser.type === 'MEMBER') throw new HttpException('Request channel user is not Admin/Owner', HttpStatus.BAD_REQUEST);
 		
@@ -219,11 +219,11 @@ export class ChannelsService {
 	
 	async updateChannelUser(id: number, user_id: string, body: UpdateChannelUserDto, auth_user_id: string = ''): Promise<GetChannelUsersDto> {
 		const tmp_channelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: id } }
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: +id } }
 		});
 		
 		const updatingChannelUser = await this.prisma.channelUsers.findUniqueOrThrow({
-			where: { user_id_channel_id: { user_id: user_id, channel_id: id } }
+			where: { user_id_channel_id: { user_id: user_id, channel_id: +id } }
 		})
 		
 		if (tmp_channelUser.type === 'MEMBER') throw new HttpException('Member cannot alter other channel users', HttpStatus.BAD_REQUEST);
