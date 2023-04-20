@@ -62,9 +62,6 @@ const ChannelsChat = () => {
 		onSuccess: (res) => { setBannedUsers(res); console.log(res) }
 	})
 	
-	
-	// Todo - Add users tab
-	
 	// const { isLoading: getUsersIsLoading } = useQuery({
 	// 	queryKey: 'getUsers',
 	// 	queryFn:

@@ -1,7 +1,8 @@
 import { ProTable, ProColumns, ProCard } from '@ant-design/pro-components'
-import { Button, List } from 'antd'
+import { Badge, Button, List } from 'antd'
 import Link from 'next/link'
-import React from 'react'
+import React, { useContext } from 'react'
+import { AppContext } from './Layout'
 
 export interface UserFriendListTableType {
 	name: string,
@@ -22,6 +23,9 @@ const MockData: UserFriendListTableType[] = [
 ]
 
 const UserFriendList = () => {
+	
+	const context = useContext(AppContext);
+	
 	return (
 		<ProCard
 			title="Friends"

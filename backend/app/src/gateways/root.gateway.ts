@@ -16,7 +16,7 @@ import { getCookieTokenFromWs } from "src/utils/WsCookieParser";
 })
 export class RootGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	private readonly logger = new Logger(RootGateway.name);
-	private readonly connectedClients = Map<string, string>;  // <client.id, user_id>
+	private readonly connectedClients = new Map<string, string>();  // <client.id, user_id>
 	
 	constructor(
 		@Inject(PrismaService) private readonly prisma: PrismaClient
