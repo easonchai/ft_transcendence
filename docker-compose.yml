@@ -6,23 +6,26 @@ services:
     build: ./backend
     restart: always
     volumes:
-      - ./backend/app:/app
       - ./backend/app/.docker.env:/app/.env
       - /app/node_modules/
+      - ./backend/app:/app
     networks:
       - fortytwo
     ports:
       - 3000:3000
     depends_on:
       - database
+      - test_database
     env_file:
       - .env
+
   frontend:
     image: frontend:v1
     container_name: frontend
     build: ./frontend
     restart: always
     volumes:
+      - /app/node_modules
       - ./frontend/app:/app
     networks:
       - fortytwo
@@ -30,6 +33,9 @@ services:
       - 3001:3001
     depends_on:
       - database
+      - test_database
+      - backend
+
   database:
     image: postgres:15
     container_name: postgres
@@ -38,6 +44,19 @@ services:
       - 5432:5432
     env_file:
       - .env
+    networks:
+      - fortytwo
+
+  test_database:
+    image: postgres:15
+    container_name: postgres_test
+    restart: always
+    ports:
+      - 5435:5432
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=test_transcendence
     networks:
       - fortytwo
 

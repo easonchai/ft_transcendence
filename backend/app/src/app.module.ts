@@ -1,15 +1,22 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserModule } from './user/user.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { UserFriendModule } from './user-friend/user-friend.module';
-import { UserBlockModule } from './user-block/user-block.module';
+import { AppService, PrismaService } from './app.service';
+import { ChannelsModule } from './channels/channels.module';
+import { AppExceptionFilter } from './exceptions/app_exception.filter';
+import { MatchesModule } from './matches/matches.module';
+import { AuthGuard } from './guards/auth.guards';
+import { APP_GUARD } from '@nestjs/core';
+import { RootGateway } from './gateways/root.gateway';
 
 @Module({
-	imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, UserModule, UserFriendModule, UserBlockModule],
-	controllers: [AppController],
-	providers: [AppService],
+  imports: [ChannelsModule, MatchesModule],
+  controllers: [AppController],
+  providers: [
+		AppService,
+		PrismaService,
+		AppExceptionFilter, 
+		{ provide: APP_GUARD, useClass: AuthGuard },
+		RootGateway
+	]
 })
-export class AppModule { }
+export class AppModule {}

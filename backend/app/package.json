@@ -17,7 +17,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:int": "jest -i --no-cache --verbose --config test/jest-int.json",
+    "test_db:reset": "npx prisma migrate reset --schema=./prisma/test_schema.prisma"
   },
   "prisma": {
     "seed": "ts-node ./prisma/seed/seed.ts"
@@ -25,16 +27,25 @@
   "dependencies": {
     "@faker-js/faker": "^7.6.0",
     "@nestjs/common": "^9.0.0",
-    "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.0.0",
-    "@nestjs/platform-express": "^9.3.12",
+    "@nestjs/mapped-types": "*",
+    "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/platform-socket.io": "^9.4.0",
     "@nestjs/swagger": "^6.2.1",
+    "@nestjs/websockets": "^9.4.0",
     "@prisma/client": "^4.11.0",
+    "@types/bcrypt": "^5.0.0",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/jsonwebtoken": "^9.0.1",
+    "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "cookie-parser": "^1.4.6",
+    "dotenv-cli": "^7.2.1",
+    "jsonwebtoken": "^9.0.0",
+    "next-auth": "^4.22.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0",
-    "uuid": "^9.0.0"
+    "rxjs": "^7.2.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

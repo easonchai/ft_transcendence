@@ -1,6 +1,5 @@
 import { INestApplication, Injectable, OnModuleInit } from '@nestjs/common';
-import { Prisma, PrismaClient, User } from '@prisma/client'
-const prisma = new PrismaClient()
+import { PrismaClient as PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class AppService {
@@ -11,6 +10,12 @@ export class AppService {
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
+	constructor() {
+		super({
+			errorFormat: 'pretty'
+		})
+	}
+	
 	async onModuleInit() {
 		await this.$connect();
 	}
@@ -20,13 +25,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 			await app.close();
 		})
 	}
-}
-
-// @Injectable()
-// export class UserService {
-// 	constructor(private prisma: PrismaService) {}
 	
-// 	async getUser() {
-// 		return await this.prisma.user.findFirst();
-// 	}
-// }
+	async cleanDatabase() {
+		if (process.env.TESTING === '0') return ;
+		const models = Reflect.ownKeys(this).filter((key) => key[0] !== '_' && key[0] !== '$' && !key.toString().includes('Symbol('));
+		return Promise.all(models.map(async (modelKey) => await this[modelKey].deleteMany({}) ));
+	}
+}

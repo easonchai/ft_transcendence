@@ -1,4 +1,4 @@
-import { Match, Prisma, PrismaClient, User, Channels, ChannelType, ChannelUserType } from '@prisma/client'
+import { Match, Prisma, PrismaClient, User, Channels, ChannelType, ChannelUserType, FriendStatus } from '@prisma/client'
 import { faker } from '@faker-js/faker'
 const prisma = new PrismaClient()
 
@@ -6,7 +6,6 @@ const seededUsers: User[] = [];
 
 const seedUser = async (): Promise<void> => {
 	const users: Prisma.UserCreateInput[] = Array.from({ length: 10 }, () => ({
-			displayname: faker.name.fullName(),
 			name: faker.name.firstName(),
 			email: faker.internet.email(),
 		}));
@@ -46,21 +45,21 @@ const seedFriends = async (): Promise<void> => {
 	await prisma.user.update({
 		where: { id: seededUsers[0].id },
 		data: {
-			friends: { create: [{ friend_id: seededUsers[1].id }] }
+			friends: { create: [{ friend_id: seededUsers[1].id, status: FriendStatus.ACCEPTED }] }
 		}
 	});
 	
 	await prisma.user.update({
 		where: { id: seededUsers[2].id },
 		data: {
-			friends: { create: [{ friend_id: seededUsers[3].id }, { friend_id: seededUsers[4].id }] }
+			friends: { create: [{ friend_id: seededUsers[3].id, status: FriendStatus.PENDING }, { friend_id: seededUsers[4].id, status: FriendStatus.ACCEPTED }] }
 		}
 	});
 	
 	await prisma.user.update({
 		where: { id: seededUsers[5].id },
 		data: {
-			friends: { create: [{ friend_id: seededUsers[6].id }, {friend_id: seededUsers[7].id}, {friend_id: seededUsers[8].id }] }
+			friends: { create: [{ friend_id: seededUsers[6].id, status: FriendStatus.ACCEPTED }, { friend_id: seededUsers[7].id, status: FriendStatus.ACCEPTED }, { friend_id: seededUsers[8].id, status: FriendStatus.PENDING }] }
 		}
 	})
 }
@@ -69,14 +68,14 @@ const seedBlocks = async (): Promise<void> => {
 	await prisma.user.update({
 		where: { id: seededUsers[9].id },
 		data: {
-			blockers: { create: [{ blocked_id: seededUsers[8].id }] }
+			blocked: { create: { blocked_id: seededUsers[8].id } }
 		}
 	})
 	
 	await prisma.user.update({
 		where: { id: seededUsers[6].id },
 		data: {
-			blockers: { create: [{ blocked_id: seededUsers[1].id }, {blocked_id: seededUsers[2].id}] }
+			blocked: { create: [{ blocked_id: seededUsers[0].id }, { blocked_id: seededUsers[2].id }] }
 		}
 	})
 }
@@ -86,7 +85,7 @@ const seedMessages = async(): Promise<void> => {
 		where: { id: seededUsers[1].id },
 		data: {
 			senders: { create: [
-				{ message: `Hello, I am ${seededUsers[1].displayname}`, receiver_id: seededUsers[2].id },
+				{ message: `Hello, I am ${seededUsers[1].name}`, receiver_id: seededUsers[2].id },
 			] }
 		}
 	})
@@ -94,7 +93,7 @@ const seedMessages = async(): Promise<void> => {
 		where: { id: seededUsers[2].id },
 		data: {
 			senders: { create: [
-				{ message: `Hello, I am ${seededUsers[2].displayname}`, receiver_id: seededUsers[1].id },
+				{ message: `Hello, I am ${seededUsers[2].name}`, receiver_id: seededUsers[1].id },
 			] }
 		}
 	})
@@ -116,9 +115,10 @@ const seedMessages = async(): Promise<void> => {
 	})
 }
 
-const seededChannels: Channels[] = [];
+let seededChannels: Channels[] = [];
 
 const seedChannels = async(): Promise<void> => {
+	
 	let channels: Prisma.ChannelsCreateInput[] = Array.from({ length: 2 }, (v, i) => (
 		{
 			name: faker.name.firstName(),
