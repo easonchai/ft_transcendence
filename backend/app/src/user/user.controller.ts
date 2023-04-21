@@ -1,26 +1,17 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Put, Req, Request, RequestMethod, Res, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, FileTypeValidator, Get, HttpException, HttpStatus, Param, ParseFilePipe, Patch, Post, Put, Req, Request, RequestMethod, Res, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path = require('path');
 import { FileInterceptor } from '@nestjs/platform-express';
-import { User } from '@prisma/client';
+import { ChannelUsers, User, UserFriends } from '@prisma/client';
 import { UserService } from './user.service';
-import { UserDto, UserResponseDto } from './dto';
-import { Response } from 'express';
+// import { UserDto, UserResponseDto } from './dto';
+// import { Request, Response } from 'express';
 import { Express } from 'express';
-import { ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-
-export const storage = {
-	storage: diskStorage({
-		destination: './uploads/profileimages',
-		filename: (req, file, cb) => {
-			const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
-			const extension: string = path.parse(file.originalname).ext;
-
-			cb(null, `${filename}${extension}`)
-		}
-	})
-}
+import { ApiConsumes, ApiOkResponse, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ImageMulterOptions } from 'src/utils/UploadHelper';
+import { GetUserChannels, GetUserDto, GetUserFriends, GetUserMessages } from './user.dto';
+import { UserId } from 'src/decorators/user_id.decorators';
 
 @ApiTags('users')
 @Controller('users')
@@ -32,79 +23,110 @@ export class UserController {
 	@ApiResponse({
 		status: 200,
 		description: 'All users has been successfully fetched',
-		type: UserResponseDto
+		type: GetUserDto
 	})
-	async getAllUser(): Promise<UserResponseDto[]> {
-		return this.userService.getAllUser();
+	async getAllUser(@UserId() auth_user_id: string): Promise<User[]> {
+		return await this.userService.getAllUser(auth_user_id);
 	}
 
 	@Get(':id')
 	@ApiOperation({ summary: "Get user by id" })
-	@ApiParam({
-		name: 'id',
-		required: true,
-		description: 'Should be an id of a user that exists in the database',
-		type: String
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'A user has been successfully fetched',
-		type: UserResponseDto
-	})
-	@ApiResponse({
-		status: 404,
-		description: 'A user with given id does not exist.'
-	})
-	async getUserById(@Param('id') id: string): Promise<UserResponseDto> {
-		return this.userService.getUserById(id);
+	@ApiOkResponse({ type: GetUserDto })
+	async getUserById(@Param('id') id: string, @UserId() auth_user_id: string): Promise<User> {
+		return await this.userService.getUserById(id, auth_user_id);
 	}
+	
+	@Get(':id/friends')
+	@ApiOperation({ summary: "Get accepted friends" })
+	@ApiOkResponse({ type: GetUserDto, isArray: true })
+	async getAcceptedUserFriends(@Param('id') id: string, @UserId() auth_user_id: string): Promise<User[]> {
+		return await this.userService.getAcceptedUserFriends(id, auth_user_id);
+	}
+	
+	@Get('pending')
+	@ApiOperation({ summary: "Get pending friends" })
+	@ApiOkResponse({ type: GetUserDto, isArray: true })
+	async getPendingUserFriends(@UserId() auth_user_id: string): Promise<User[]> {
+		return await this.userService.getPendingUserFriends(auth_user_id);
+	}
+	
+	@Get('requested')
+	@ApiOperation({ summary: "Get requested friends" })
+	@ApiOkResponse({ type: GetUserDto, isArray: true })
+	async getRequestedUserFriends(@UserId() auth_user_id: string): Promise<User[]> {
+		return await this.userService.getRequestedUserFriends(auth_user_id);
+	}
+	
+	@Get('blocked')
+	@ApiOperation({ summary: "Get blocked" })
+	@ApiOkResponse({ type: GetUserDto, isArray: true })
+	async getUserBlock(@UserId() auth_user_id: string): Promise<User[]> {
+		return await this.userService.getUserBlock(auth_user_id);
+	}
+	
+	@Get('blockedby')
+	@ApiOperation({ summary: "Get blocked by" })
+	@ApiOkResponse({ type: GetUserDto, isArray: true })
+	async getUserBlockBy(@UserId() auth_user_id: string): Promise<User[]> {
+		return await this.userService.getUserBlockBy(auth_user_id);
+	}
+	
+	@Get(':id/messages')
+	@ApiOperation({ summary: "Get user messages" })
+	@ApiOkResponse({ type: GetUserMessages, isArray: true })
+	async getUserMessages(@Param('id') id: string, @UserId() auth_user_id: string): Promise<GetUserMessages[]> {
+		return await this.userService.getUserMessages(id, auth_user_id);
+	}
+	
+	@Get('chats')
+	@ApiOperation({ summary: "Get user chats" })
+	@ApiOkResponse({ type: GetUserDto, isArray: true })
+	async getUserChats(@UserId() auth_user_id: string): Promise<User[]> {
+		return await this.userService.getUserChats(auth_user_id);
+	}
+	
+	@Get('channels')
+	@ApiOperation({ summary: "Get user channels" })
+	@ApiOkResponse({ type: GetUserChannels, isArray: true })
+	async getUserChannels(@UserId() auth_user_id: string): Promise<ChannelUsers[]> {
+		return await this.userService.getUserChannels(auth_user_id);
+	}
+	
+	// Post
+	
+	@Post(':id')
+	@ApiOperation({ summary: "Add user friend" })
+	@ApiOkResponse({ type: GetUserFriends })
+	async createUserFriends(@Param('id') id: string, @UserId() auth_user_id: string): Promise<UserFriends> {
+		return await this.userService.createUserFriends(id, auth_user_id);
+	}
+	
+	
+	
+	// @Patch('image')
+	// @ApiConsumes('multipart/form-data')
+	// @UseInterceptors(
+	// 	FileInterceptor('image', ImageMulterOptions)
+	// )
+	// async updateUserImage(@UploadedFile() file: Express.Multer.File) {
+	// 	const filename = file?.filename;
+	// 	if (!filename) throw new HttpException('File upload error', HttpStatus.BAD_REQUEST);
+		
+	// }
+	
+	// @Post('/:id/upload_avatar')
+	// @ApiConsumes('multipart/form-data')
+	// @ApiOperation({ summary: "Upload user image by id" })
+	// @UseInterceptors(FileInterceptor('file', storage))
+	// async uploadFile(@Param('id') id: string, @UploadedFile() file, @Request() req) {
+	// 	return this.userService.uploadUserImage(id, file.path);
+	// }
 
-	@Get(':id/image')
-	@ApiOperation({ summary: "download user image by id" })
-	@ApiParam({
-		name: 'id',
-		required: true,
-		description: 'Should be an id of a user that exists in the database',
-		type: String
-	})
-	@ApiResponse({
-		status: 200,
-		description: 'A user has been successfully fetched',
-		type: UserResponseDto
-	})
-	@ApiResponse({
-		status: 404,
-		description: 'A user with given id does not exist.'
-	})
-	async getUserImageById(@Param('id') id: string, @Res() response: Response) {
-		const image = await this.userService.getUserImageById(id);
-		if (!image)
-			throw new HttpException('image not found', HttpStatus.NOT_FOUND);
-		return response.sendFile(image);
-	}
-
-	@Post()
-	@ApiOperation({ summary: "Create new user" })
-	async createNewUser(@Body(new ValidationPipe({ transform: true })) userDto: UserDto, @Req() request: Request): Promise<User> {
-		return this.userService.createNewUser(userDto);
-	}
-
-	@Post('/:id/upload_avatar')
-	@ApiConsumes('multipart/form-data')
-	@ApiOperation({ summary: "Upload user image by id" })
-	@UseInterceptors(FileInterceptor('file', storage))
-	async uploadFile(@Param('id') id: string, @UploadedFile() file, @Request() req) {
-		// const user: User = req.user;
-		// console.log(file);
-		return this.userService.uploadUserImage(id, file.path);
-		// return ({ imagePath: file.path });
-	}
-
-	@Put('/:id')
-	@ApiOperation({ summary: "Update user details by id" })
-	async updateUserById(@Param('id') id: string, @Body() userDto: UserDto) {
-		return this.userService.updateUserById(id, userDto);
-	}
+	// @Put('/:id')
+	// @ApiOperation({ summary: "Update user details by id" })
+	// async updateUserById(@Param('id') id: string, @Body() userDto: UserDto) {
+	// 	return this.userService.updateUserById(id, userDto);
+	// }
 
 
 

@@ -7,9 +7,18 @@ import { MatchesModule } from './matches/matches.module';
 import { AuthGuard } from './guards/auth.guards';
 import { APP_GUARD } from '@nestjs/core';
 import { RootGateway } from './gateways/root.gateway';
+import { MulterModule } from '@nestjs/platform-express';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [ChannelsModule, MatchesModule],
+  imports: [
+		ChannelsModule,
+		MatchesModule,
+		UserModule,
+		MulterModule.register({
+			dest: './uploads',
+		})
+	],
   controllers: [AppController],
   providers: [
 		AppService,
