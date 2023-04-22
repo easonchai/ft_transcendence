@@ -137,7 +137,7 @@ model UserFriends {
   friend     User         @relation("friend_of", fields: [friend_id], references: [id], onDelete: Cascade)
   status     FriendStatus
   created_at DateTime     @default(now())
-  update_at  DateTime     @updatedAt
+  updated_at  DateTime     @updatedAt
 
   @@id([user_id, friend_id])
 }

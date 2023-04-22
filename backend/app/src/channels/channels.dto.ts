@@ -42,29 +42,6 @@ export class GetChannelMessagesDto extends CreatedUpdated implements ChannelMess
 	created_at: Date;
 }
 
-export class GetUserDto extends CreatedUpdated implements User {
-	@ApiProperty()
-	id: string;
-	
-	@ApiProperty()
-	name: string;
-	
-	@ApiProperty()
-	email: string | null;
-	
-	@ApiProperty()
-	emailVerified: Date | null;
-	
-	@ApiProperty()
-	image: string | null;
-	
-	@ApiProperty()
-	two_factor: boolean;
-	
-	@ApiProperty({ enum: [UserStatus] })
-	status: UserStatus;
-}
-
 export class GetChannelUsersDto extends CreatedUpdated implements ChannelUsers {
 	@ApiProperty()
 	user_id: string;
@@ -79,7 +56,7 @@ export class GetChannelUsersDto extends CreatedUpdated implements ChannelUsers {
 	type: ChannelUserType;
 	
 	@ApiProperty()
-	user: GetUserDto;
+	user: User;
 }
 
 export class GetChannelBannedUsers extends CreatedUpdated implements ChannelBannedUsers {
@@ -90,7 +67,7 @@ export class GetChannelBannedUsers extends CreatedUpdated implements ChannelBann
 	channel_id: number;
 	
 	@ApiProperty()
-	user: GetUserDto;
+	user: User;
 }
 
 // Create
