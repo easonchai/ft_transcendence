@@ -1,6 +1,6 @@
 import { FileTypeValidator, ParseFilePipe, UploadedFile } from "@nestjs/common";
 import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
-import { ChannelUserType, ChannelUsers, FriendStatus, User, UserFriends, UserMessages, UserStatus } from "@prisma/client";
+import { ChannelUserType, ChannelUsers, FriendStatus, User, UserBlocks, UserFriends, UserMessages, UserStatus } from "@prisma/client";
 import { registerDecorator, ValidationOptions } from "class-validator";
 
 class CreatedUpdated {
@@ -77,6 +77,14 @@ export class GetUserFriends extends CreatedUpdated implements UserFriends {
 	
 	@ApiProperty()
 	status: FriendStatus;
+}
+
+export class GetUserBlock extends CreatedUpdated implements UserBlocks {
+	@ApiProperty()
+	blocked_by_id: string;
+	
+	@ApiProperty()
+	blocked_id: string;
 }
 
 

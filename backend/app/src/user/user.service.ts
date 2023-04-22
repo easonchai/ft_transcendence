@@ -190,7 +190,7 @@ export class UserService {
 		return created;
 	}
 	
-	async createUerBlocks(user_id: string, auth_user_id: string): Promise<UserBlocks> {
+	async createUserBlocks(user_id: string, auth_user_id: string): Promise<UserBlocks> {
 		if (user_id === auth_user_id) throw new HttpException('Cannot block yourself', HttpStatus.BAD_REQUEST);
 		
 		const tba = await this.prisma.user.findUniqueOrThrow({

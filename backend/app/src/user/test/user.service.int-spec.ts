@@ -93,7 +93,7 @@ describe('UserService', () => {
 		let blocked: UserBlocks;
 		
 		it('should create some user blocks', async () => {
-			blocked = await userService.createUerBlocks(users[2].id, users[0].id);
+			blocked = await userService.createUserBlocks(users[2].id, users[0].id);
 			
 			expect(blocked.blocked_id).toEqual(users[2].id);
 			expect(blocked.blocked_by_id).toEqual(users[0].id);
@@ -101,7 +101,7 @@ describe('UserService', () => {
 		
 		it('should throw HttpException due to friends cannot be blocked', async () => {
 			const errorfn = async () => {
-				await userService.createUerBlocks(users[0].id, users[1].id);
+				await userService.createUserBlocks(users[0].id, users[1].id);
 			}
 			
 			expect(errorfn()).rejects.toThrow(HttpException);

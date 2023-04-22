@@ -1,16 +1,16 @@
-import { Body, Controller, FileTypeValidator, Get, HttpException, HttpStatus, Param, ParseFilePipe, Patch, Post, Put, Req, Request, RequestMethod, Res, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, FileTypeValidator, Get, HttpException, HttpStatus, Param, ParseFilePipe, Patch, Post, Put, Req, Request, RequestMethod, Res, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path = require('path');
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ChannelUsers, User, UserFriends } from '@prisma/client';
+import { ChannelUsers, User, UserBlocks, UserFriends } from '@prisma/client';
 import { UserService } from './user.service';
 // import { UserDto, UserResponseDto } from './dto';
 // import { Request, Response } from 'express';
 import { Express } from 'express';
 import { ApiConsumes, ApiOkResponse, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ImageMulterOptions } from 'src/utils/UploadHelper';
-import { GetUserChannels, GetUserDto, GetUserFriends, GetUserMessages } from './user.dto';
+import { GetUserChannels, GetUserDto, GetUserFriends, GetUserMessages, UpdateUserDto, GetUserBlock, UpdateUserFriendsDto } from './user.dto';
 import { UserId } from 'src/decorators/user_id.decorators';
 
 @ApiTags('users')
@@ -101,7 +101,44 @@ export class UserController {
 		return await this.userService.createUserFriends(id, auth_user_id);
 	}
 	
+	@Post(':id/block')
+	@ApiOperation({ summary: "Ban user" })
+	@ApiOkResponse({ type: GetUserBlock })
+	async createUserBlock(@Param('id') id: string, @UserId() auth_user_id: string): Promise<UserBlocks> {
+		return await this.userService.createUserBlocks(id, auth_user_id);
+	}
 	
+	// Patch
+	
+	@Post()
+	@ApiOperation({ summary: "Update user" })
+	@ApiOkResponse({ type: GetUserDto })
+	async updateUser(@Body() body: UpdateUserDto, @UserId() auth_user_id: string) {
+		return await this.userService.updateUser(body, auth_user_id);
+	}
+	
+	@Post(':id/friends')
+	@ApiOperation({ summary: "Update friend request" })
+	@ApiOkResponse({ type: GetUserFriends })
+	async updateUserFriends(@Param('id') id: string, @Body() body: UpdateUserFriendsDto, @UserId() auth_user_id: string) {
+		return await this.userService.updateUserFriends(id, body, auth_user_id);
+	}
+	
+	// Delete
+	
+	@Delete(':id/friends')
+	@ApiOperation({ summary: "Delete friend" })
+	@ApiOkResponse({ type: GetUserFriends })
+	async deleteUserFriend(@Param('id') id: string, @UserId() auth_user_id: string) {
+		return await this.userService.deleteUserFriend(id, auth_user_id);
+	}
+	
+	@Delete(':id/block')
+	@ApiOperation({ summary: "Delete block" })
+	@ApiOkResponse({ type: GetUserBlock })
+	async deleteUserBlock(@Param('id') id: string, @UserId() auth_user_id: string) {
+		return await this.userService.deleteUserBlock(id, auth_user_id);
+	}
 	
 	// @Patch('image')
 	// @ApiConsumes('multipart/form-data')
