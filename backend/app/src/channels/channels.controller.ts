@@ -82,7 +82,7 @@ export class ChannelsController {
 	@ApiOperation({ summary: 'Banned channel user' })
 	@ApiOkResponse({ type: GetChannelBannedUsers })
 	async createChannelBannedUsers(@Param('id') id: number, @Param('user_id') user_id: string, @UserId() auth_user_id: string) {
-		return await this.createChannelBannedUsers(id, user_id, auth_user_id);
+		return await this.channelsService.createChannelBannedUsers(id, user_id, auth_user_id);
 	}
 	
 	// Patch

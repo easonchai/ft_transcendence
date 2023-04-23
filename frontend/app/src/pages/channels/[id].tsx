@@ -10,6 +10,7 @@ import { io, Socket } from 'socket.io-client';
 import dayjs from 'dayjs'
 import moment from 'moment'
 import { User } from '@prisma/client';
+import { usersService } from '@/apis/usersService';
 
 const ChannelsChat = () => {
 	const router = useRouter();
@@ -47,7 +48,7 @@ const ChannelsChat = () => {
 			setChannelUsers(res);
 			const me = res.find((obj) => obj.user.name === session?.user?.name);
 			setMe(me);
-		}
+		},
 	})
 	
 	const { isLoading: getChannelMessagesIsLoading } = useQuery({
@@ -59,13 +60,24 @@ const ChannelsChat = () => {
 	const { isLoading: getChannelBannedIsLoading } = useQuery({
 		queryKey: 'getChannelBanned',
 		queryFn: () => channelsService.getChannelBanned(id as string),
-		onSuccess: (res) => { setBannedUsers(res); console.log(res) }
+		onSuccess: (res) => { setBannedUsers(res); },
+		enabled: me?.type !== 'MEMBER'
 	})
 	
-	// const { isLoading: getUsersIsLoading } = useQuery({
-	// 	queryKey: 'getUsers',
-	// 	queryFn:
-	// })
+	const { isLoading: getUsersIsLoading } = useQuery({
+		queryKey: 'getUsers',
+		queryFn: () => usersService.getAllUsers(),
+		onSuccess: (res) => {
+			const r = res.filter((obj) => {
+				for (const u of channelUsers) {
+					if (u.user_id === obj.id) return false;
+				}
+				return true
+			});
+			setAllUsers(r);
+		},
+		enabled: me?.type !== 'MEMBER' && channelUsers.length !== 0
+	})
 	
 	
 	const editChannelUserMutation = useMutation({
@@ -84,7 +96,8 @@ const ChannelsChat = () => {
 	const kickChannelUserMutation = useMutation({
 		mutationFn: (user_id: string) => channelsService.kickChannelUser(id as string, user_id),
 		onSuccess: (res) => {
-			setChannelUsers(prev => prev.filter((obj) => obj.user_id !== res.user_id))
+			setChannelUsers(prev => prev.filter((obj) => obj.user_id !== res.user_id));
+			setAllUsers(prev => [...prev, res.user]);
 			messageApi.success('Successfully kicked channel user');
 		},
 		onError: (e: any) => { messageApi.error('Failed to kick channel user') }
@@ -93,10 +106,29 @@ const ChannelsChat = () => {
 	const unbanChannelUserMutation = useMutation({
 		mutationFn: (user_id: string) => channelsService.unbanChannelUser(id as string, user_id),
 		onSuccess: (res) => {
-			setBannedUsers(prev => prev.filter((obj) => obj.user_id !== res.user_id))
+			setBannedUsers(prev => prev.filter((obj) => obj.user_id !== res.user_id));
+			setAllUsers(prev => [...prev, res.user]);
 			messageApi.success('Successfully unban channel user');
 		},
 		onError: (e: any) => { messageApi.error('Failed to unban channel user') }
+	})
+	
+	const banChannelUserMutation = useMutation({
+		mutationFn: (user_id: string) => channelsService.banChannelUser(id as string, user_id),
+		onSuccess: (res) => {
+			setAllUsers(prev => prev.filter((obj) => obj.id !== res.user_id))
+			setBannedUsers(prev => [...prev, res])
+			messageApi.success('Successfully ban user');
+		}
+	})
+	
+	const inviteChannelUserMutation = useMutation({
+		mutationFn: (user_id: string) => channelsService.inviteChannelUser(id as string, user_id),
+		onSuccess: (res) => {
+			setChannelUsers(prev => [...prev, res]);
+			setAllUsers(prev => prev.filter((obj) => obj.id !== res.user_id));
+			messageApi.success('Successfully invited user');
+		}
 	})
 	
 	useEffect(() => {
@@ -214,41 +246,22 @@ const ChannelsChat = () => {
 											</ProCard.TabPane>
 											<ProCard.TabPane key="3" tab="Users">
 												<List 
-													dataSource={channelUsers}
-													loading={getChannelUsersIsLoading}
+													dataSource={allUsers}
+													loading={getUsersIsLoading}
 													renderItem={(item, index) => (
 														<List.Item
 															key={index}
-															actions={
-																me?.type !== 'MEMBER' && me !== item && item.type !== 'OWNER' ? (
-																	[ 
-																		<Button 
-																			size='small' 
-																			onClick={() => {
-																				setModalIsopen(true);
-																				setModalInput({...modalInput, user_id: item.user_id, type: item.type, mute_time: item.mute_time}) 
-																			}}
-																		>
-																			Edit
-																		</Button>,
-																		<Button 
-																			danger
-																			size='small' 
-																			loading={kickChannelUserMutation.isLoading}
-																			onClick={() => kickChannelUserMutation.mutate(item.user_id)}
-																		>
-																			Kick
-																		</Button>
-																	]
-																) : undefined
+															actions={ me?.type !== 'MEMBER' ? [
+																		<Button onClick={() => inviteChannelUserMutation.mutate(item.id)}>Invite</Button>,
+																		<Button danger onClick={() => banChannelUserMutation.mutate(item.id)}>Ban</Button>,
+																] : []
 															}
 														>
 															<List.Item.Meta 
 																style={{ alignItems: 'center' }} 
-																title={item.user.name} 
-																avatar={<Avatar src={item.user.image ?? `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
+																title={item.name} 
+																avatar={<Avatar src={item.image ?? `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
 															/>
-															<Tag color={item.type === 'OWNER' ? 'gold' : 'default'}>{item.type}</Tag>
 														</List.Item>
 													)}
 												/>

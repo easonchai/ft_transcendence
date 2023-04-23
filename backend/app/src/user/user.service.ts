@@ -1,5 +1,5 @@
 import { Body, HttpException, HttpStatus, Injectable, Response } from '@nestjs/common';
-import { ChannelUsers, User, UserBlocks, UserFriends, UserMessages } from '@prisma/client';
+import { ChannelUsers, Channels, User, UserBlocks, UserFriends, UserMessages } from '@prisma/client';
 import { PrismaService } from 'src/app.service';
 import path, { join } from 'path';
 import { CreateChannelMessagesDto, GetChannelUsersDto } from 'src/channels/channels.dto';
@@ -75,6 +75,17 @@ export class UserService {
 		})
 		myFriends.forEach((obj) => friends.push(obj.friend));
 		myFriendsOf.forEach((obj) => friends.push(obj.user));
+		
+		friends = friends.filter((obj) => {
+			for (const a of me.blocked) {
+				if (a.blocked_id === obj.id) return false
+			}
+			for (const a of me.blocked_by) {
+				if (a.blocked_by_id === obj.id) return false
+			}
+			return true;
+		})
+		
 		return friends;
 	}
 	
@@ -156,11 +167,14 @@ export class UserService {
 		return chatUsers;
 	}
 	
-	async getUserChannels(auth_user_id: string): Promise<ChannelUsers[]> {
+	async getUserChannels(auth_user_id: string): Promise<Channels[]> {
+		const channels: Channels[] = [];
 		const channelsUsers = await this.prisma.channelUsers.findMany({
 			where: { user_id: auth_user_id },
+			include: { channel: true }
 		})
-		return channelsUsers;
+		channelsUsers.forEach((obj) => channels.push(obj.channel))
+		return channels;
 	}
 	
 	

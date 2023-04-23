@@ -2,8 +2,15 @@ import React from 'react'
 import { ProCard } from '@ant-design/pro-components'
 import { Button, Statistic } from 'antd'
 import Link from 'next/link'
+import { User } from '@prisma/client'
 
-const UserInformation = () => {
+interface UserInformationProps {
+	user: User;
+	isLoading: boolean
+}
+
+const UserInformation = (props: UserInformationProps) => {
+	
 	return (
 		<ProCard.Group
 			title="Information"
@@ -13,15 +20,11 @@ const UserInformation = () => {
 			extra={[ <Link key='1' href="/edit"><Button>Edit</Button></Link> ]}
 		>
 			<ProCard>
-				<Statistic title="Name" value="Hiromasa" />
+				<Statistic title="Name" value={props.user ? props.user.name : ''} loading={props.isLoading} />
 			</ProCard>
 			<ProCard.Divider />
 			<ProCard>
-				<Statistic title="Email" value="Hiromasa@test.com" />
-			</ProCard>
-			<ProCard.Divider />
-			<ProCard>
-				<Statistic title="Status" value="Active" />
+				<Statistic title="Email" value={props.user ? props.user.email! : ''} loading={props.isLoading}/>
 			</ProCard>
 		</ProCard.Group>
 	)

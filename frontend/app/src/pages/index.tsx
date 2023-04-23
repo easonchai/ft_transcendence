@@ -1,56 +1,22 @@
-import { getSession, signOut } from 'next-auth/react'
+import { getSession, signOut, useSession } from 'next-auth/react'
 import { PageContainer, ProCard } from '@ant-design/pro-components';
-import { Button, Row, Col, Image } from 'antd';
+import { Button, Row, Col, Image, message } from 'antd';
 import UserInformation from '@/components/UserInformation'
 import UserFriendList from '@/components/UserFriendList';
 import UserAchievements from '@/components/UserAchievements';
 import UserMatchStats from '@/components/UserMatchStats';
 import UserMatchHistory from '@/components/UserMatchHistory';
-import { useSession } from 'next-auth/react';
+import { useQuery } from 'react-query';
+import { usersService } from '@/apis/usersService';
+import { useState } from 'react';
+import { User } from '@prisma/client';
+import { GetMatchStatsResponse, GetMatchesResponse, matchService } from '@/apis/matchService';
+import UserDetails from '@/components/UserDetails';
 
 export default function Home() {
-	const {data: session} = useSession();
+	const { data: session } = useSession();
 	
 	return (
-		<PageContainer
-			title="Profile"
-			header={{
-				extra: [ <Button key="1" onClick={() => signOut()} danger type="primary">Log out</Button> ]
-			}}
-		>
-			<ProCard>
-				<Row 
-					gutter={10}
-				>
-					<Col span={6}>
-						<Image src={`https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} width={150} />
-					</Col>
-					<Col span={18}>
-						<UserInformation />
-					</Col>
-				</Row>
-				<Row
-					className='py-5'
-					gutter={10}
-				>
-					<Col span={12}>
-						<UserFriendList />
-					</Col>
-					<Col span={12}>
-						<UserAchievements />
-					</Col>
-				</Row>
-				<Row
-					gutter={10}
-				>
-					<Col span={12}>
-						<UserMatchStats />
-					</Col>
-					<Col span={12}>
-						<UserMatchHistory />
-					</Col>
-				</Row>
-			</ProCard>
-		</PageContainer>
+		<UserDetails isMe={true} id={session?.user.id!} />
 	)
 }

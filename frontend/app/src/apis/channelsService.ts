@@ -1,5 +1,5 @@
 import apiClient from "./ApiClient";
-import { ChannelUserType, User } from "@prisma/client";
+import { ChannelUserType, Channels, User } from "@prisma/client";
 
 export interface ChannelUsersResponse {
 	user_id: string,
@@ -28,7 +28,7 @@ export interface EditChannelUsersRequest {
 	mute_time?: Date
 }
 
-const getChannels = async () => {
+const getChannels = async (): Promise<Channels[]> => {
 	const res = await apiClient.get('/channels');
 	return res.data;
 }
@@ -63,6 +63,16 @@ const joinChannels = async (id: number) => {
 	return res.data;
 }
 
+const banChannelUser = async (id: number | string, user_id: string): Promise<ChannelBannedResponse> => {
+	const res = await apiClient.post(`/channels/${id}/banned/${user_id}`);
+	return res.data;
+}
+
+const inviteChannelUser = async (id: number | string, user_id: string): Promise<ChannelUsersResponse> => {
+	const res = await apiClient.post(`/channels/${id}/add/${user_id}`);
+	return res.data;
+}
+
 // Patch
 
 const editChannelUser = async (id: number | string, user_id: string, body: EditChannelUsersRequest): Promise<ChannelUsersResponse> => {
@@ -92,5 +102,7 @@ export const channelsService = {
 	editChannelUser,
 	kickChannelUser,
 	getChannelBanned,
-	unbanChannelUser
+	unbanChannelUser,
+	banChannelUser,
+	inviteChannelUser
 }

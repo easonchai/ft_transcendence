@@ -57,6 +57,17 @@ export class ChannelsService {
 	}
 	
 	async getChannelUsersByChannelId(id: number, auth_user_id: string = ''): Promise<GetChannelUsersDto[]> {
+		let res: GetChannelUsersDto[] = [];
+		
+		const me = await this.prisma.user.findUnique({
+			where: { id: auth_user_id },
+			include: { blocked: true, blocked_by: true }
+		});
+		
+		const inChannel = await this.prisma.channelUsers.findUniqueOrThrow({
+			where: { user_id_channel_id: { user_id: auth_user_id, channel_id: +id } }
+		});
+
 		const channelUsers = await this.prisma.channelUsers.findMany({
 			where: { channel_id: +id },
 			include: {
@@ -64,13 +75,14 @@ export class ChannelsService {
 			}
 		})
 		
+		
 		for (const user of channelUsers) {
-			if (user.user_id === auth_user_id) return channelUsers;
+			if (me.blocked.find((obj) => obj.blocked_id === user.user_id)) continue;
+			if (me.blocked_by.find((obj) => obj.blocked_by_id === user.user_id)) continue;
+			res.push(user);
 		}
 		
-		const channel = await this.prisma.channels.findUnique({ where: { id: +id } });
-		if (channel.type === 'PUBLIC') return channelUsers;
-		else throw new HttpException('Unauthrorized to view channel users', HttpStatus.BAD_REQUEST);
+		return res;
 	}
 	
 	async getChannelBannedUsers(id: number, auth_user_id: string = ''): Promise<GetChannelBannedUsers[]> {

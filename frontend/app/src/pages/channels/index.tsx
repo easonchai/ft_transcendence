@@ -1,43 +1,39 @@
-import apiClient from '@/apis/ApiClient'
 import { channelsService } from '@/apis/channelsService'
+import { usersService } from '@/apis/usersService'
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { PageContainer, ProCard } from '@ant-design/pro-components'
+import { Channels } from '@prisma/client'
 import { Button, List, Tag, message } from 'antd'
-import axios from 'axios'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQuery } from 'react-query'
 
-const MockData = [
-	{ name: 'Channel 1', type: 'PUBLIC' },
-	{ name: 'Channel 2', type: 'PUBLIC' },
-	{ name: 'Channel 3', type: 'PROTECTED' },
-	{ name: 'Channel 4', type: 'PUBLIC' },
-	{ name: 'Channel 5', type: 'PROTECTED' },
-	{ name: 'Channel 6', type: 'PUBLIC' },
-	{ name: 'Channel 7', type: 'PUBLIC' },
-]
-
-interface ChannelsResponseType {
-	id: number,
-	name: string,
-	type: 'PRIVATE' | 'PROTECTED' | 'PUBLIC'
-}
-
 const index = () => {
 	const router = useRouter();
-	const [channels, setChannels] = useState<ChannelsResponseType[]>([]);
-	const [myChannels, setMyChannels] = useState<ChannelsResponseType[]>([]);
+	const [channels, setChannels] = useState<Channels[]>([]);
+	const [myChannels, setMyChannels] = useState<Channels[]>([]);
 	const [messageApi, contextHolder] = message.useMessage();
 	
-	const { isLoading: getChannelsIsLoading } = useQuery(
-		'getChannels',
-		channelsService.getChannels,
-		{
-			onSuccess: (res) => {setChannels(res)},
-			onError: () => {messageApi.error({ content: 'Fetch channels failed' })},
-		}
-	)
+	const { isLoading: getMyChannelsIsLoading } = useQuery({
+		queryKey: 'getMyChannels',
+		queryFn: () => usersService.getMyChannels(),
+		onSuccess: (res) => setMyChannels(res),
+	})
+	
+	const { isLoading: getChannelsIsLoading } = useQuery({
+		queryKey: 'getChannels',
+		queryFn: () => channelsService.getChannels(),
+		onSuccess: (res) => {
+			const c = res.filter((obj) => {
+				for (const item of myChannels) {
+					if (item.id === obj.id) return false
+				}
+				return true;
+			})
+			setChannels(c)
+		},
+		enabled: myChannels.length !== 0
+	})
 	
 	const joinChannels = useMutation({
 		mutationFn: async (id: number) => await channelsService.joinChannels(id),
@@ -45,10 +41,6 @@ const index = () => {
 		onError: (e: any) => { messageApi.error({ content: e.message ?? 'Failed to join channel' }) }
 	})
 	
-	// const { isLoading: getMyChannelsIsLoading } = useQuery(
-	// 	'getMyChannels',
-	// 	channelsService.getMyChannels
-	// )
 	
 	return (
 		<>
@@ -64,14 +56,15 @@ const index = () => {
 						title="My channels"
 						headerBordered
 						bordered
+						loading={getMyChannelsIsLoading}
 					>
 						<List
-							dataSource={MockData}
+							dataSource={myChannels}
 							renderItem={(item, index) => (
 								<List.Item 
 									key={index}
 									actions={[
-										<Button>Chat</Button>
+										<Button onClick={() => router.push(`/channels/${item.id}`)}>Chat</Button>
 									]}
 								>
 									<List.Item.Meta title={`${index + 1}. ${item.name}`} />

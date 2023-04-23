@@ -1,40 +1,35 @@
 import React from 'react'
 import { List, Row, Col, Typography } from 'antd'
 import { ProCard } from '@ant-design/pro-components'
+import { GetMatchesResponse } from '@/apis/matchService'
 
-const MockData = [
-	{ name: 'John Doe', score: 5, opponent_name: 'Ash Bee', opponent_score: '2', date: '5th March 2022' },
-	{ name: 'John Doe', score: 5, opponent_name: 'Ash Bee', opponent_score: '2', date: '5th March 2022' },
-	{ name: 'John Doe', score: 5, opponent_name: 'Ash Bee', opponent_score: '2', date: '5th March 2022' },
-	{ name: 'John Doe', score: 5, opponent_name: 'Ash Bee', opponent_score: '2', date: '5th March 2022' },
-	{ name: 'John Doe', score: 5, opponent_name: 'Ash Bee', opponent_score: '2', date: '5th March 2022' },
-	{ name: 'John Doe', score: 5, opponent_name: 'Ash Bee', opponent_score: '2', date: '5th March 2022'},
-	{ name: 'John Doe', score: 5, opponent_name: 'Ash Bee', opponent_score: '2', date: '5th March 2022' },
-	{ name: 'John Doe', score: 5, opponent_name: 'Ash Bee', opponent_score: '2', date: '5th March 2022'},
-	{ name: 'John Doe', score: 5, opponent_name: 'Ash Bee', opponent_score: '2', date: '5th March 2022'},
-	{ name: 'John Doe', score: 5, opponent_name: 'Ash Bee', opponent_score: '2', date: '5th March 2022'}
-]
+interface UserMatchHistoryProps {
+	matches: GetMatchesResponse[],
+	isLoading: boolean
+}
 
-const UserMatchHistory = () => {
+const UserMatchHistory = (props: UserMatchHistoryProps) => {
 	return (
 		<ProCard
 			title="History"
 			bordered
 			headerBordered
+			loading={props.isLoading}
+			className='h-full'
 		>
 			<List
 				style={{ overflowY: 'scroll', maxHeight: 320 }}
-				dataSource={MockData}
+				dataSource={props.matches}
 				renderItem={(item, index) => (
 					<List.Item 
 						key={index}
 						style={{ display: 'block' }}
 					>
-						<Typography.Text type="secondary" >{item.date}</Typography.Text>
+						<Typography.Text type="secondary" >{item.created_at.toDateString()}</Typography.Text>
 						<Row justify={'space-between'}>
-							<Col>{item.name} {item.score}</Col>
+							<Col>{item.users[0].user.name} {item.users[0].score}</Col>
 							-
-							<Col>{item.opponent_score} {item.opponent_name}</Col>
+							<Col>{item.users[1].user.name} {item.users[1].score}</Col>
 						</Row>
 					</List.Item>
 				)}

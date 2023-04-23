@@ -209,21 +209,15 @@ describe('ChannelsService', () => {
 		it('should return an array of channelUsers', async () => {
 			channelUsers = await channelsService.getChannelUsersByChannelId(channels[0].id, users[0].id);
 			
-			expect(channelUsers).toHaveLength(3);
+			expect(channelUsers).toHaveLength(2);
 		})
 		
-		it('should return an array of channelUsers from PUBLIC even user is not in channel', async () => {
-			channelUsers = await channelsService.getChannelUsersByChannelId(tmp_channel.id, users[2].id);
-			
-			expect(channelUsers).toHaveLength(1);
-		})
-		
-		it('should throw HttpException if user not in channel or channel is not PUBLIC', async () => {
+		it('should throw PrismaClientKnownRequestError if user not in channel', async () => {
 			const errorfn = async () => {
 				await channelsService.getChannelUsersByChannelId(channels[1].id, users[2].id);
 			}
 			
-			expect(errorfn()).rejects.toThrow(HttpException);
+			expect(errorfn()).rejects.toThrow(Prisma.PrismaClientKnownRequestError);
 		})
 	})
 	
