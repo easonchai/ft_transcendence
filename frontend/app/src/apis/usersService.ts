@@ -1,4 +1,4 @@
-import { Channels, FriendStatus, User, UserBlocks, UserFriends } from "@prisma/client";
+import { Channels, FriendStatus, User, UserBlocks, UserFriends, UserMessages } from "@prisma/client";
 import apiClient from "./ApiClient";
 
 const getAllUsers = async (): Promise<User[]> => {
@@ -43,6 +43,11 @@ const getChats = async (): Promise<User[]> => {
 
 const getMyChannels = async (): Promise<Channels[]> => {
 	const res = await apiClient.get(`/users/channels`);
+	return res.data;
+}
+
+const getUserMessages = async (id: string): Promise<UserMessages[]> => {
+	const res = await apiClient.get(`/users/messages/${id}`);
 	return res.data;
 }
 
@@ -92,6 +97,7 @@ export const usersService = {
 	getBlockedBy,
 	getChats,
 	getMyChannels,
+	getUserMessages,
 	createUserFriends,
 	createUserBlock,
 	updateUser,

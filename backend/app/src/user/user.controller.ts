@@ -3,7 +3,7 @@ import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path = require('path');
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ChannelUsers, Channels, User, UserBlocks, UserFriends } from '@prisma/client';
+import { ChannelUsers, Channels, User, UserBlocks, UserFriends, UserMessages } from '@prisma/client';
 import { UserService } from './user.service';
 // import { UserDto, UserResponseDto } from './dto';
 // import { Request, Response } from 'express';
@@ -73,9 +73,9 @@ export class UserController {
 	}
 	
 	@Get('messages/:id')
-	@ApiOperation({ summary: "Get user messages", deprecated: true })
+	@ApiOperation({ summary: "Get user messages" })
 	@ApiOkResponse({ type: GetUserMessages, isArray: true })
-	async getUserMessages(@Param('id') id: string, @UserId() auth_user_id: string): Promise<GetUserMessages[]> {
+	async getUserMessages(@Param('id') id: string, @UserId() auth_user_id: string): Promise<UserMessages[]> {
 		return await this.userService.getUserMessages(id, auth_user_id);
 	}
 	

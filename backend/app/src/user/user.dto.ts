@@ -1,7 +1,7 @@
 import { FileTypeValidator, ParseFilePipe, UploadedFile } from "@nestjs/common";
 import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
 import { ChannelUserType, ChannelUsers, FriendStatus, User, UserBlocks, UserFriends, UserMessages, UserStatus } from "@prisma/client";
-import { registerDecorator, ValidationOptions } from "class-validator";
+import { Allow, registerDecorator, ValidationOptions } from "class-validator";
 
 class CreatedUpdated {
 	@ApiHideProperty()
@@ -46,12 +46,6 @@ export class GetUserMessages extends CreatedUpdated implements UserMessages {
 	
 	@ApiProperty()
 	receiver_id: string;
-	
-	@ApiProperty()
-	sender: User
-	
-	@ApiProperty()
-	receiver: User
 }
 
 export class GetUserChannels extends CreatedUpdated implements ChannelUsers {
@@ -104,4 +98,9 @@ export class UpdateUserDto {
 export class UpdateUserFriendsDto {
 	@ApiProperty({ enum: [FriendStatus] })
 	status: FriendStatus
+}
+
+export class ChatSocketMessageDto {
+	@Allow()
+	message: string;
 }

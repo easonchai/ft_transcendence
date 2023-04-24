@@ -272,7 +272,7 @@ const ChannelsChat = () => {
 							</ProCard>
 						</Col>
 						<Col span={14}>
-							<ChatWindow chats={channelMessages ?? []} isLoading={getChannelMessagesIsLoading} channelUsers={channelUsers} />
+							<ChatWindow chats={channelMessages ?? []} isLoading={getChannelMessagesIsLoading} users={channelUsers} isDM={false} />
 							<Row className='pt-3'>
 								<Space.Compact className='w-full'>
 									<Input 
@@ -282,7 +282,7 @@ const ChannelsChat = () => {
 										value={msg}
 										disabled={me ? (me.mute_time > new Date() ? true : false) : false}
 									/>
-									<Button>Send</Button>
+									<Button onClick={() => emitChannelMessages()}>Send</Button>
 								</Space.Compact>
 							</Row>
 						</Col>

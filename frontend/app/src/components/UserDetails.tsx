@@ -29,7 +29,7 @@ export default function UserDetails(props: UserDetailsProps) {
 	const [stats, setStats] = useState<GetMatchStatsResponse>();
 	
 	const { isLoading: getUserIsloading } = useQuery({
-		queryKey: ['getUser', props.id],
+		queryKey: 'getUser',
 		queryFn: () => usersService.getUserById(props.id),
 		onSuccess: (res) => setUser(res),
 	})

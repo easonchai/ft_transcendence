@@ -58,7 +58,7 @@ export class ChannelsController {
 	}
 	
 	@Post(':id/message')
-	@ApiOperation({ summary: 'Create channel message (being handled in websocket)', deprecated: true })
+	@ApiOperation({ summary: 'Create channel message (being handled in websocket)' })
 	@ApiOkResponse({ type: GetChannelMessagesDto })
 	async createChannelMessages(@Param('id') id: number, @Body() body: CreateChannelMessagesDto, @UserId() auth_user_id: string) {
 		return await this.channelsService.createChannelMessages(id, body, auth_user_id);

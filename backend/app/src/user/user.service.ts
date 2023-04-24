@@ -131,18 +131,16 @@ export class UserService {
 		return blockby;
 	}
 	
-	async getUserMessages(user_id: string, auth_user_id: string): Promise<GetUserMessages[]> {
-		let messages: GetUserMessages[] = [];
+	async getUserMessages(user_id: string, auth_user_id: string): Promise<UserMessages[]> {
+		let messages: UserMessages[] = [];
 		const senderMsg = await this.prisma.userMessages.findMany({
 			where: { sender_id: auth_user_id, receiver_id: user_id },
-			include: { sender: true, receiver: true }
 		})
 		const receiverMsg = await this.prisma.userMessages.findMany({
 			where: { sender_id: user_id, receiver_id: auth_user_id },
-			include: { sender: true, receiver: true }
 		})
 		messages = [...senderMsg, ...receiverMsg];
-		messages.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
+		messages.sort((a, b) => a.created_at.getTime() - b.created_at.getTime());
 		return messages;
 	}
 	
@@ -301,8 +299,4 @@ export class UserService {
 		
 		return deleted;
 	}
-	
-	// async updateUserImage(file: Express.Multer.File): Promise<User> {
-	// 	const imagepath = join(process.cwd(), 'uploads', file.filename + path.extname(file.originalname));
-	// }
 }

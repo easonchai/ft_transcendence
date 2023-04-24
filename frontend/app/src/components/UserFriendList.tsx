@@ -8,6 +8,7 @@ import { useMutation } from 'react-query'
 import { usersService } from '@/apis/usersService'
 import { MessageInstance } from 'antd/es/message/interface'
 import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 
 interface UserFriendListProps {
 	friends: User[],
@@ -24,7 +25,7 @@ interface UserFriendListProps {
 const UserFriendList = (props: UserFriendListProps) => {
 	
 	const context = useContext(AppContext);
-	const router = useRouter();
+	const { data: session } = useSession();
 	
 	const unbanMutation = useMutation({
 		mutationKey: 'unban',
@@ -49,7 +50,7 @@ const UserFriendList = (props: UserFriendListProps) => {
 					renderItem={(item, index) => (
 						<List.Item
 							key={index}
-							actions={[ <Link href="/chat/1"><Button>Chat</Button></Link> ]}
+							actions={[ session?.user.id !== item.id ? <Link href={`/chat/${item.id}`}><Button>Chat</Button></Link> : '' ]}
 						>
 							<List.Item.Meta title={<Link href={`/users/${item.id}`}>{`${index + 1}. ${item.name}`}</Link>} />
 						</List.Item>
@@ -66,7 +67,7 @@ const UserFriendList = (props: UserFriendListProps) => {
 								renderItem={(item, index) => (
 									<List.Item
 										key={index}
-										actions={[ <Link href="/chat/1"><Button>Chat</Button></Link> ]}
+										actions={[ <Link href={`/chat/${item.id}`}><Button>Chat</Button></Link> ]}
 									>
 										<List.Item.Meta title={`${index + 1}. ${item.name}`} />
 									</List.Item>
@@ -80,7 +81,7 @@ const UserFriendList = (props: UserFriendListProps) => {
 								renderItem={(item, index) => (
 									<List.Item
 										key={index}
-										actions={[ <Link href="/chat/1"><Button>Chat</Button></Link> ]}
+										actions={[ <Link href={`/chat/${item.id}`}><Button>Chat</Button></Link> ]}
 									>
 										<List.Item.Meta title={`${index + 1}. ${item.name}`} />
 									</List.Item>
@@ -108,7 +109,7 @@ const UserFriendList = (props: UserFriendListProps) => {
 								renderItem={(item, index) => (
 									<List.Item
 										key={index}
-										actions={[ <Link href="/chat/1"><Button>Chat</Button></Link> ]}
+										actions={[ <Link href={`/chat/${item.id}`}><Button>Chat</Button></Link> ]}
 									>
 										<List.Item.Meta title={`${index + 1}. ${item.name}`} />
 									</List.Item>
