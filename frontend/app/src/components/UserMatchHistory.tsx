@@ -2,6 +2,7 @@ import React from 'react'
 import { List, Row, Col, Typography } from 'antd'
 import { ProCard } from '@ant-design/pro-components'
 import { GetMatchesResponse } from '@/apis/matchService'
+import moment from 'moment'
 
 interface UserMatchHistoryProps {
 	matches: GetMatchesResponse[],
@@ -25,11 +26,11 @@ const UserMatchHistory = (props: UserMatchHistoryProps) => {
 						key={index}
 						style={{ display: 'block' }}
 					>
-						<Typography.Text type="secondary" >{item.created_at.toDateString()}</Typography.Text>
+						<Typography.Text type="secondary" >{moment(item.created_at).format('LLL')}</Typography.Text>
 						<Row justify={'space-between'}>
-							<Col>{item.users[0].user.name} {item.users[0].score}</Col>
+							<Col flex={1}>{item.users[0].user.name} {item.users[0].score}</Col>
 							-
-							<Col>{item.users[1].user.name} {item.users[1].score}</Col>
+							<Col flex={1} className='text-right'>{item.users[1].score} {item.users[1].user.name}</Col>
 						</Row>
 					</List.Item>
 				)}

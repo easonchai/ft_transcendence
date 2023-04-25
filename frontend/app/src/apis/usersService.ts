@@ -71,7 +71,18 @@ const updateUser = async (body: { name: string, two_factor: boolean }): Promise<
 }
 
 const updateUserFriends = async (id: string, body: { status: FriendStatus }): Promise<UserFriends> => {
-	const res = await apiClient.post(`/users/friends/${id}`, body);
+	const res = await apiClient.patch(`/users/friends/${id}`, body);
+	return res.data;
+}
+
+const updateImage = async (data: FormData): Promise<User> => {
+	const res = await apiClient.patch(
+		`/users/image`, 
+		data, 
+		{
+			headers: { "Content-Type": "multipart/form-data" }
+		}
+	)
 	return res.data;
 }
 
@@ -104,5 +115,6 @@ export const usersService = {
 	updateUserFriends,
 	deleteUserFriend,
 	deleteUserBlock,
+	updateImage
 }
 

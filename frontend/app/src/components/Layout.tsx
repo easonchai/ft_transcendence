@@ -2,9 +2,10 @@ import React, { PropsWithChildren, createContext, useEffect, useState } from 're
 import { MenuDataItem, ProLayout } from '@ant-design/pro-components'
 import { UserOutlined, RobotOutlined, CommentOutlined } from '@ant-design/icons'
 import Link from 'next/link'
-import { io } from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
 import { message } from 'antd'
 import { useRouter } from 'next/router'
+import { UserStatus } from '@prisma/client'
 
 const layoutRoutes: MenuDataItem = {
 	path: '/',
@@ -24,12 +25,25 @@ const layoutRoutes: MenuDataItem = {
 	]
 }
 
-export const AppContext = createContext<Map<string, string>>({} as Map<string, string>);
+interface AppUserStatus {
+	client_id: string,
+	user_id: string,
+	status: UserStatus
+}
+
+export interface AppContextType {
+	socket: Socket,
+	onlineClients: AppUserStatus[]
+}
+
+export const AppContext = createContext<AppContextType>({} as AppContextType);
+
 
 const Layout = ({ children }: PropsWithChildren) => {
 	
 	const router = useRouter();
-	const [onlineClients, setOnlineClients] = useState<Map<string, string>>({} as Map<string, string>);
+	const [onlineClients, setOnlineClients] = useState<AppUserStatus[]>([]);
+	const [s, setS] = useState<Socket>();
 	
 	useEffect(() => {
 		const s = io(`${process.env.NESTJS_WS}/`, {
@@ -52,10 +66,11 @@ const Layout = ({ children }: PropsWithChildren) => {
 		s.on('exception', (error) => {
 			console.log(error.message);
 		})
+		setS(s);
 	}, [router.isReady])
 	
 	return (
-		<AppContext.Provider value={onlineClients}>
+		<AppContext.Provider value={{ socket: s!, onlineClients: onlineClients }}>
 			<ProLayout
 				route={layoutRoutes}
 				menuItemRender={(item, dom) => <Link href={item.path!}>{dom}</Link>}

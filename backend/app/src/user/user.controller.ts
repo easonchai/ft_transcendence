@@ -13,6 +13,7 @@ import { ImageMulterOptions } from 'src/utils/UploadHelper';
 import { GetUserChannels, GetUserDto, GetUserFriends, GetUserMessages, UpdateUserDto, GetUserBlock, UpdateUserFriendsDto } from './user.dto';
 import { UserId } from 'src/decorators/user_id.decorators';
 import { GetChannelsDto } from 'src/channels/channels.dto';
+import { Public } from 'src/decorators/public.decorators';
 
 @ApiTags('users')
 @Controller('users')
@@ -93,6 +94,15 @@ export class UserController {
 		return await this.userService.getUserChannels(auth_user_id);
 	}
 	
+
+	@Get('image/:id')
+	// @Public()
+	@ApiOperation({ summary: "Get user image" })
+	@ApiOkResponse({ type: Blob }) 
+	async getUserImage(@Param(':id') id: string, @UserId() auth_user_id: string) {
+		return await this.userService.getUserImage(id, auth_user_id);
+	}
+	
 	// Post
 	
 	@Post('/friends/:id')
@@ -123,6 +133,14 @@ export class UserController {
 	@ApiOkResponse({ type: GetUserFriends })
 	async updateUserFriends(@Param('id') id: string, @Body() body: UpdateUserFriendsDto, @UserId() auth_user_id: string) {
 		return await this.userService.updateUserFriends(id, body, auth_user_id);
+	}
+	
+	@Patch('image')
+	@ApiOperation({ summary: "Upload image" })
+	@ApiOkResponse({ type: GetUserDto })
+	@UseInterceptors(FileInterceptor('file', ImageMulterOptions))
+	async updateUserImage(@UploadedFile() file: Express.Multer.File, @UserId() auth_user_id: string) {
+		return await this.userService.updateUserImage(file.path, auth_user_id);
 	}
 	
 	// Delete

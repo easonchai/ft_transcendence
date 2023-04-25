@@ -1,9 +1,10 @@
-import { Body, HttpException, HttpStatus, Injectable, Response } from '@nestjs/common';
+import { Body, HttpException, HttpStatus, Injectable, Response, StreamableFile } from '@nestjs/common';
 import { ChannelUsers, Channels, User, UserBlocks, UserFriends, UserMessages } from '@prisma/client';
 import { PrismaService } from 'src/app.service';
 import path, { join } from 'path';
 import { CreateChannelMessagesDto, GetChannelUsersDto } from 'src/channels/channels.dto';
 import { GetUserMessages, UpdateUserDto, UpdateUserFriendsDto } from './user.dto';
+import { createReadStream, unlink } from 'fs';
 
 @Injectable()
 export class UserService {
@@ -175,6 +176,10 @@ export class UserService {
 		return channels;
 	}
 	
+	async getUserImage(user_id: string, auth_user_id: string): Promise<StreamableFile> {
+		const file = createReadStream(join(`${process.cwd()}`, 'uploads/smol.png'));
+		return new StreamableFile(file);
+	}
 	
 	// Create
 	
@@ -269,6 +274,22 @@ export class UserService {
 		const updated = await this.prisma.userFriends.update({
 			where: { user_id_friend_id: { user_id: user_id, friend_id: auth_user_id } },
 			data: { status: body.status }
+		})
+		return updated;
+	}
+	
+	async updateUserImage(path: string, auth_user_id: string): Promise<User> {
+		const user = await this.prisma.user.findUniqueOrThrow({ where: { id: auth_user_id } });
+		if (user.image) {	
+			unlink(user.image, (err) => {
+				if (err) throw err;
+			});
+		} 
+		const updated = await this.prisma.user.update({
+			where: { id: auth_user_id },
+			data: {
+				image: path
+			}
 		})
 		return updated;
 	}

@@ -1,6 +1,6 @@
 import { Inject, Logger, UseFilters, UseGuards } from "@nestjs/common";
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from "@nestjs/websockets";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserStatus } from "@prisma/client";
 import { PrismaService } from "src/app.service";
 import { ChannelsService } from "src/channels/channels.service";
 import { Socket, Namespace } from 'socket.io'
@@ -16,7 +16,7 @@ import { getCookieTokenFromWs } from "src/utils/WsCookieParser";
 })
 export class RootGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	private readonly logger = new Logger(RootGateway.name);
-	private readonly connectedClients = new Map<string, string>();  // <client.id, user_id>
+	private connectedClients: { client_id: string, user_id: string, status: UserStatus }[] = [];
 	
 	constructor(
 		@Inject(PrismaService) private readonly prisma: PrismaClient
@@ -35,13 +35,17 @@ export class RootGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		const session = await this.prisma.session.findUniqueOrThrow({
 			where: { sessionToken: token }
 		});
-		this.connectedClients[client.id] = session.userId;
+		this.connectedClients.push({
+			client_id: client.id,
+			user_id: session.userId,
+			status: 'ONLINE'
+		})
 		this.logger.debug(`client ${client.id} connected`);
 		this.io.emit('connectedClients', this.connectedClients);
 	}
 	
 	handleDisconnect(client: Socket) {
-		delete this.connectedClients[client.id];
+		this.connectedClients = this.connectedClients.filter((obj) => obj.client_id !== client.id);
 		this.io.emit('connectedClients', this.connectedClients);
 		this.logger.debug(`client ${client.id} disconnected`);
 	}

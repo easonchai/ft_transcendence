@@ -1,5 +1,5 @@
 import { ProTable, ProColumns, ProCard } from '@ant-design/pro-components'
-import { Badge, Button, List } from 'antd'
+import { Badge, Button, List, Space } from 'antd'
 import Link from 'next/link'
 import React, { Dispatch, SetStateAction, useContext } from 'react'
 import { AppContext } from './Layout'
@@ -9,6 +9,7 @@ import { usersService } from '@/apis/usersService'
 import { MessageInstance } from 'antd/es/message/interface'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
+import UserStatus from './UserStatus'
 
 interface UserFriendListProps {
 	friends: User[],
@@ -19,7 +20,8 @@ interface UserFriendListProps {
 	isLoading: boolean
 	isMe: boolean,
 	messageApi: MessageInstance,
-	setBlocked: Dispatch<SetStateAction<User[]>>
+	setBlocked: Dispatch<SetStateAction<User[]>>,
+	setPendings: Dispatch<SetStateAction<User[]>>
 }
 
 const UserFriendList = (props: UserFriendListProps) => {
@@ -33,6 +35,15 @@ const UserFriendList = (props: UserFriendListProps) => {
 		onSuccess: (res) => {
 			props.setBlocked(prev => prev.filter((obj) => obj.id !== res.blocked_id));
 			props.messageApi.success('Successfully unban user');
+		}
+	})
+	
+	const acceptUserFriendMutation = useMutation({
+		mutationKey: 'acceptUser',
+		mutationFn: (user_id: string) => usersService.updateUserFriends(user_id, { status: 'ACCEPTED' }),
+		onSuccess: (res) => {
+			props.setPendings(prev => prev.filter((obj) => obj.id !== res.user_id));
+			props.messageApi.success('Successfully accepted friend request');
 		}
 	})
 	
@@ -52,7 +63,7 @@ const UserFriendList = (props: UserFriendListProps) => {
 							key={index}
 							actions={[ session?.user.id !== item.id ? <Link href={`/chat/${item.id}`}><Button>Chat</Button></Link> : '' ]}
 						>
-							<List.Item.Meta title={<Link href={`/users/${item.id}`}>{`${index + 1}. ${item.name}`}</Link>} />
+							<List.Item.Meta title={<Link href={`/users/${item.id}`}>{`${index + 1}. ${item.name}`}<UserStatus id={item.id} /></Link>} />
 						</List.Item>
 					)}
 				/>
@@ -67,9 +78,9 @@ const UserFriendList = (props: UserFriendListProps) => {
 								renderItem={(item, index) => (
 									<List.Item
 										key={index}
-										actions={[ <Link href={`/chat/${item.id}`}><Button>Chat</Button></Link> ]}
+										actions={[ <Button onClick={() => acceptUserFriendMutation.mutate(item.id)} loading={acceptUserFriendMutation.isLoading}>Accept</Button> ]}
 									>
-										<List.Item.Meta title={`${index + 1}. ${item.name}`} />
+										<List.Item.Meta title={<Space>{`${index + 1}. ${item.name}`}<UserStatus id={item.id} /></Space>} />
 									</List.Item>
 								)}
 							/>
@@ -83,7 +94,7 @@ const UserFriendList = (props: UserFriendListProps) => {
 										key={index}
 										actions={[ <Link href={`/chat/${item.id}`}><Button>Chat</Button></Link> ]}
 									>
-										<List.Item.Meta title={`${index + 1}. ${item.name}`} />
+										<List.Item.Meta title={<Space>{`${index + 1}. ${item.name}`}<UserStatus id={item.id} /></Space>} />
 									</List.Item>
 								)}
 							/>
@@ -95,9 +106,9 @@ const UserFriendList = (props: UserFriendListProps) => {
 								renderItem={(item, index) => (
 									<List.Item
 										key={index}
-										actions={[ <Button onClick={() => unbanMutation.mutate(item.id)} danger>Unblock</Button> ]}
+										actions={[ <Button onClick={() => unbanMutation.mutate(item.id)} danger loading={unbanMutation.isLoading}>Unblock</Button> ]}
 									>
-										<List.Item.Meta title={`${index + 1}. ${item.name}`} />
+										<List.Item.Meta title={<Space>{`${index + 1}. ${item.name}`}<UserStatus id={item.id} /></Space>} />
 									</List.Item>
 								)}
 							/>
@@ -111,7 +122,7 @@ const UserFriendList = (props: UserFriendListProps) => {
 										key={index}
 										actions={[ <Link href={`/chat/${item.id}`}><Button>Chat</Button></Link> ]}
 									>
-										<List.Item.Meta title={`${index + 1}. ${item.name}`} />
+										<List.Item.Meta title={<Space>{`${index + 1}. ${item.name}`}<UserStatus id={item.id} /></Space>} />
 									</List.Item>
 								)}
 							/>

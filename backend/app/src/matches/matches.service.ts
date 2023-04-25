@@ -15,7 +15,8 @@ export class MatchesService {
 				users: { some: { user_id: user_id } }
 			},
 			include: {
-				users: { include: { user: true } } 
+				users: { 
+					include: { user: true } } 
 			},
 			orderBy: {
 				created_at: 'desc'

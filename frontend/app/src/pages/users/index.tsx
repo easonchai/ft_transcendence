@@ -1,14 +1,17 @@
 import { usersService } from '@/apis/usersService'
+import { AppContext } from '@/components/Layout'
+import UserStatus from '@/components/UserStatus'
 import { PageContainer, ProCard } from '@ant-design/pro-components'
 import { User } from '@prisma/client'
-import { Button, List, message } from 'antd'
+import { Badge, Button, List, Space, message } from 'antd'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useMutation, useQuery } from 'react-query'
 
 const index = () => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const [users, setUsers] = useState<User[]>([]);
+	const context = useContext(AppContext);
 	const router = useRouter();
 	
 	const { isLoading: getAllUsersIsLoading } = useQuery({
@@ -56,7 +59,7 @@ const index = () => {
 									<Button danger onClick={() => blockUserMutation.mutate(item.id)}>Block</Button>
 								]}
 							>
-								<List.Item.Meta title={`${index + 1}. ${item.name}`} />
+								<List.Item.Meta title={<Space>{`${index + 1}. ${item.name}`}<UserStatus id={item.id} /></Space>} />
 								<div>{item.email}</div>
 							</List.Item>
 						)}

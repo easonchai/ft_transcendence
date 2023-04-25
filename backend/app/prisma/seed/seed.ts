@@ -17,29 +17,48 @@ const seedUser = async (): Promise<void> => {
 }
 
 const seedMatches = async (): Promise<void> => {
-	let userMatch;
-	const matches: Prisma.MatchCreateInput[] = Array.from({ length: 2 }, (v, index) => (
-		{
-			users: {
-				create: userMatch = seededUsers.map((user, i) => {
-					if (index == 0 && i % 5 == 1) {
-						return {
-							score: faker.datatype.number(),
-							user: { connect: { id: seededUsers[i].id } }
-						};
-					} else if (index == 0 && i % 5 == 2) {
-						return {
-							score: faker.datatype.number(),
-							user: { connect: { id: seededUsers[i].id } }
-						};
-					}
-				})
-			}
+	// let userMatch;
+	// const matches: Prisma.MatchCreateInput[] = Array.from({ length: 2 }, (v, index) => (
+	// 	{
+	// 		users: {
+	// 			create: userMatch = seededUsers.map((user, i) => {
+	// 				if (index == 0 && i % 5 == 1) {
+	// 					return {
+	// 						score: faker.datatype.number(),
+	// 						user: { connect: { id: seededUsers[i].id } }
+	// 					};
+	// 				} else if (index == 0 && i % 5 == 2) {
+	// 					return {
+	// 						score: faker.datatype.number(),
+	// 						user: { connect: { id: seededUsers[i].id } }
+	// 					};
+	// 				}
+	// 			})
+	// 		}
+	// 	}
+	// ))
+	// for (const match of matches) {
+	// 	await prisma.match.create({ data: match });
+	// }
+	
+	await prisma.match.create({ data: {
+		users: {
+			create: [
+				{ user_id: seededUsers[0].id, score: faker.datatype.number() },
+				{ user_id: seededUsers[1].id, score: faker.datatype.number() }
+			]
 		}
-	))
-	for (const match of matches) {
-		await prisma.match.create({ data: match });
-	}
+	} })
+	
+
+	await prisma.match.create({ data: {
+		users: {
+			create: [
+				{ user_id: seededUsers[2].id, score: faker.datatype.number() },
+				{ user_id: seededUsers[3].id, score: faker.datatype.number() }
+			]
+		}
+	} })
 }
 
 const seedFriends = async (): Promise<void> => {
