@@ -1,5 +1,6 @@
 import { Match, Prisma, PrismaClient, User, Channels, ChannelType, ChannelUserType, FriendStatus } from '@prisma/client'
 import { faker } from '@faker-js/faker'
+import * as bcrypt from 'bcrypt'
 const prisma = new PrismaClient()
 
 const seededUsers: User[] = [];
@@ -117,24 +118,24 @@ const seedMessages = async(): Promise<void> => {
 
 let seededChannels: Channels[] = [];
 
-const seedChannels = async(): Promise<void> => {
+const seedChannels = async (): Promise<void> => {
 	
 	let channels: Prisma.ChannelsCreateInput[] = Array.from({ length: 2 }, (v, i) => (
 		{
 			name: faker.name.firstName(),
-			type: ChannelType.PUBLIC,
+			type: 'PUBLIC',
 			users: { create: { type: ChannelUserType.OWNER, user_id: seededUsers[i].id } }
 		}
 	))
 	channels.push({
 		name: faker.name.firstName(),
-		type:	ChannelType.PRIVATE,
+		type:	'PRIVATE',
 		users: { create: { type: ChannelUserType.OWNER, user_id: seededUsers[2].id } }
 	})
 	channels.push({
 		name: faker.name.firstName(),
-		type:	ChannelType.PROTECTED,
-		password: "1234",
+		type:	'PROTECTED',
+		password:  await bcrypt.hash('1234', await bcrypt.genSalt()),
 		users: { create: { type: ChannelUserType.OWNER, user_id: seededUsers[3].id } }
 	})
 	for (const channel of channels) {

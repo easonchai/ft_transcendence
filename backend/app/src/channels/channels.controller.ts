@@ -103,12 +103,12 @@ export class ChannelsController {
 	
 	// Delete
 	
-	@Delete(':id')
-	@ApiOperation({ summary: 'Delete channel' })
-	@ApiOkResponse({ type: GetChannelsDto })
-	async deleteChannel(@Param('id') id: number, @UserId() auth_user_id: string) {
-		return await this.channelsService.deleteChannels(id, auth_user_id);
-	}
+	// @Delete(':id')
+	// @ApiOperation({ summary: 'Delete channel' })
+	// @ApiOkResponse({ type: GetChannelsDto })
+	// async deleteChannel(@Param('id') id: number, @UserId() auth_user_id: string) {
+	// 	return await this.channelsService.deleteChannels(id, auth_user_id);
+	// }
 	
 	@Delete(':id/user/:user_id')
 	@ApiOperation({ summary: 'Kick user from channel' })

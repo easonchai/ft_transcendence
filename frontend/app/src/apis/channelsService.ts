@@ -1,5 +1,5 @@
 import apiClient from "./ApiClient";
-import { ChannelUserType, Channels, User } from "@prisma/client";
+import { ChannelType, ChannelUserType, Channels, User } from "@prisma/client";
 
 export interface ChannelUsersResponse {
 	user_id: string,
@@ -26,6 +26,16 @@ export interface ChannelBannedResponse {
 export interface EditChannelUsersRequest {
 	type?: ChannelUserType
 	mute_time?: Date
+}
+
+export interface CreateChannelsRequest{
+	name: string;
+	password?: string;
+	type: ChannelType
+}
+
+export interface PasswordJoinRequest {
+	password?: string
 }
 
 const getChannels = async (): Promise<Channels[]> => {
@@ -58,8 +68,13 @@ const getChannelBanned = async (id: number | string): Promise<ChannelBannedRespo
 
 // Post
 
-const joinChannels = async (id: number) => {
-	const res = await apiClient.post(`/channels/${id}`);
+const joinChannels = async (id: number | string, body: PasswordJoinRequest = {}): Promise<ChannelUsersResponse> => {
+	const res = await apiClient.post(`/channels/${id}`, body);
+	return res.data;
+}
+
+const createChannels = async (body: CreateChannelsRequest): Promise<Channels> => {
+	const res = await apiClient.post(`/channels`, body);
 	return res.data;
 }
 
@@ -83,6 +98,11 @@ const editChannelUser = async (id: number | string, user_id: string, body: EditC
 
 // Delete
 
+const leaveChannels = async (id: number | string) => {
+	const res = await apiClient.delete(`/channels/${id}`);
+	return res.data;
+}
+
 const kickChannelUser = async (id: number | string, user_id: string): Promise<ChannelUsersResponse> => {
 	const res = await apiClient.delete(`/channels/${id}/user/${user_id}`);
 	return res.data;
@@ -104,5 +124,7 @@ export const channelsService = {
 	getChannelBanned,
 	unbanChannelUser,
 	banChannelUser,
-	inviteChannelUser
+	inviteChannelUser,
+	leaveChannels,
+	createChannels
 }

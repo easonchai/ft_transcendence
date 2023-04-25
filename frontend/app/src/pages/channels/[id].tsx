@@ -32,7 +32,8 @@ const ChannelsChat = () => {
 	
 	
 	useEffect(() => {
-		if (router.query.success === '1') messageApi.success('Successfully joined channel!');
+		if (router.query.join === '1') messageApi.success('Successfully joined channel!');
+		if (router.query.create === '1') messageApi.success('Successfully created channel');
 	}, [router.isReady])
 	
 	const { isLoading: getChannelByIdIsLoading } = useQuery({
@@ -131,6 +132,13 @@ const ChannelsChat = () => {
 		}
 	})
 	
+	const leaveChannelMutation = useMutation({
+		mutationFn: () => channelsService.leaveChannels(id as string),
+		onSuccess: (res) => {
+			router.push({ pathname: '/channels', query: { leave: 1 } });
+		}
+	})
+	
 	useEffect(() => {
 		const s = io(`${process.env.NESTJS_WS}/channels?id=${id}`, {
 			reconnection: false,
@@ -171,7 +179,10 @@ const ChannelsChat = () => {
 					title={channelName}
 					headerBordered
 					bordered
-					loading={getChannelByIdIsLoading}
+					loading={getChannelByIdIsLoading || leaveChannelMutation.isLoading}
+					extra={[
+						<Button onClick={() => leaveChannelMutation.mutate()} danger>Leave</Button>
+					]}
 				>
 					<Row gutter={10}>
 						<Col span={10}>

@@ -149,10 +149,13 @@ export class ChannelsService {
 			await this.prisma.user.findFirst() :
 			await this.prisma.user.findUnique({ where: { id: auth_user_id } });
 		
-		const channel = await this.prisma.channels.findUnique({ where: { id: +id }, include: { banned_users: true } });
+		const channel = await this.prisma.channels.findUniqueOrThrow({ where: { id: +id }, include: { banned_users: true } });
 		if (channel.banned_users.find((obj) => obj.user_id === user.id)) throw new HttpException('Banned user is not allowed to join', HttpStatus.BAD_REQUEST);
 		if (channel.type === 'PRIVATE') throw new HttpException('Channel is PRIVATE', HttpStatus.BAD_REQUEST);
 		else if (channel.type === 'PROTECTED') {
+			console.log('password', body.password);
+			console.log('channel.password', channel.password);
+			console.log(await bcrypt.compare(body.password, channel.password))
 			if (!body.password) throw new HttpException('Channel requires password', HttpStatus.BAD_REQUEST);
 			else if (!(await bcrypt.compare(body.password, channel.password))) throw new HttpException('Channel password incorrect', HttpStatus.UNAUTHORIZED);
 		}
