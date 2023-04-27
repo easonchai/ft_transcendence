@@ -25,8 +25,6 @@ interface UserFriendListProps {
 }
 
 const UserFriendList = (props: UserFriendListProps) => {
-	
-	const context = useContext(AppContext);
 	const { data: session } = useSession();
 	
 	const unbanMutation = useMutation({

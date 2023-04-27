@@ -94,7 +94,7 @@ export default function UserDetails(props: UserDetailsProps) {
 		}
 	})
 	
-	if (!getUserIsSuccess) return 'Loading...'
+	if (!getUserIsSuccess) return <>'Loading...'</>
 	
 	return (
 		<PageContainer

@@ -8,6 +8,7 @@ import { usersService } from '@/apis/usersService'
 import { MessageInstance } from 'antd/es/message/interface'
 import { AppContext } from './Layout'
 import UserStatus from './UserStatus'
+import { useSession } from 'next-auth/react'
 
 interface UserInformationProps {
 	user: User;
@@ -22,6 +23,7 @@ const UserInformation = (props: UserInformationProps) => {
 	const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 	const [modalInput, setModalInput] = useState<{name: string, two_factor: boolean}>({ name: props.user.name, two_factor: props.user.two_factor });
 	const context = useContext(AppContext);
+	const { update: updateSession, data: session } = useSession();
 	
 	const updateUserMutation = useMutation({
 		mutationKey: 'updateUser',
@@ -30,6 +32,7 @@ const UserInformation = (props: UserInformationProps) => {
 			props.messageApi.success('Successfully update user')
 			props.setUser({...props.user, name: res.name, two_factor: res.two_factor })
 			setModalIsOpen(false);
+			updateSession({...session, user: res});
 		},
 		onError: (e: any) => {
 			props.messageApi.error(e.message);
@@ -42,7 +45,7 @@ const UserInformation = (props: UserInformationProps) => {
 			direction='row'
 			headerBordered
 			bordered
-			extra={ props.isMe ? [ <Button onClick={() => setModalIsOpen(true)}>Edit</Button> ] : []}
+			extra={ props.isMe ? [ <Button key="1" onClick={() => setModalIsOpen(true)}>Edit</Button> ] : []}
 		>
 			<ProCard>
 				<Statistic 

@@ -1,4 +1,4 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { AuthOptions, Session } from "next-auth";
 import FortyTwoProvider from "next-auth/providers/42-school"
 import { PrismaClient } from "@prisma/client";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -15,6 +15,7 @@ class MyPrisma {
 
 export const authOptions: AuthOptions = {
 	adapter: PrismaAdapter(MyPrisma.getPrisma()),
+	session: { strategy: 'database' },
 	providers: [
 		FortyTwoProvider({
 			clientId: process.env.FORTYTWO_ID!,
@@ -22,13 +23,11 @@ export const authOptions: AuthOptions = {
 		})
 	],
 	callbacks: {
-		async session({session, token, user}) {
-			
-			// session.user = await MyPrisma.getPrisma().user.findUniqueOrThrow({ where: { id: user.id } });
+		async session({session, trigger, user, newSession}) {
 			session.user = user;
 			return session;
-		}
-	}
+		},
+	},
 }
 
 

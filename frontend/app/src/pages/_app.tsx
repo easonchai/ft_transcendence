@@ -3,39 +3,51 @@ import type { AppProps } from 'next/app'
 import { SessionProvider, useSession } from "next-auth/react"
 import Layout from '@/components/Layout';
 import dynamic from 'next/dynamic';
-import { PropsWithChildren, useEffect } from 'react';
+import { Dispatch, PropsWithChildren, SetStateAction, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { ConfigProvider } from 'antd';
+import { Button, ConfigProvider, Form, Input, Modal, Space, message } from 'antd';
 import locale from 'antd/locale/en_US'
+import { ProCard } from '@ant-design/pro-components';
 
 const DynamicProLayout = dynamic(() => import('../components/Layout'), { ssr: false });
 
-function Auth({ children }: PropsWithChildren) {
-	const router = useRouter();
-	const { status } = useSession({
-		required: true,
-		onUnauthenticated: () => {
-			router.push('/api/auth/signin');
-		}
-	})
-	
-	if (status === 'loading') return (<div>Loading...</div>);
-	else return <>{children}</>;
+interface TwoFaModalProps {
+	modalIsOpen: boolean
+	setModalIsOpen: Dispatch<SetStateAction<boolean>>
+}
+
+const TwoFaModal = (props: TwoFaModalProps) => {
+	return (
+		<Modal
+			open={props.modalIsOpen}
+			onCancel={() => props.setModalIsOpen(false)}
+		>
+			Hello world
+		</Modal>
+	)
 }
 
 function MyComponent(props: AppProps) {
 	const queryClient = new QueryClient();
-	
+	const router = useRouter();
+	const [form] = Form.useForm();
+	const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+	const { status, data: session, update: updateSession } = useSession({
+		required: true,
+		onUnauthenticated: () => {
+			router.push('/api/auth/signin');
+		}
+	})	
+
 	return (
 		<QueryClientProvider client={queryClient}>
-			<Auth>
-				<ConfigProvider locale={locale}>
-					<DynamicProLayout>
-						<props.Component { ...props.pageProps } />
-					</DynamicProLayout>
-				</ConfigProvider>
-			</Auth>
+			<ConfigProvider locale={locale}>
+				<DynamicProLayout>
+					<props.Component { ...props.pageProps } />
+				</DynamicProLayout>
+			</ConfigProvider>
+			<TwoFaModal {...{modalIsOpen, setModalIsOpen}} />
 		</QueryClientProvider>
 	)
 }
@@ -43,7 +55,7 @@ function MyComponent(props: AppProps) {
 export default function App(props: AppProps) {
   return (
 		<SessionProvider session={props.pageProps.session}>
-				<MyComponent { ...props } />
+			<MyComponent { ...props } />
 		</SessionProvider>
 	)
 }
