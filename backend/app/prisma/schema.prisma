@@ -49,7 +49,7 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-	created_at				BigInt	// 42 NextAuth
+  created_at        BigInt // 42 NextAuth
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -76,6 +76,7 @@ model User {
   // displayname      String               @unique
   status           UserStatus           @default(OFFLINE)
   two_factor       Boolean              @default(false)
+  two_factor_code  String?
   matches          UserMatch[]
   blocked          UserBlocks[]         @relation("blocker")
   blocked_by       UserBlocks[]         @relation("blocked_by")
@@ -137,7 +138,7 @@ model UserFriends {
   friend     User         @relation("friend_of", fields: [friend_id], references: [id], onDelete: Cascade)
   status     FriendStatus
   created_at DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
+  updated_at DateTime     @updatedAt
 
   @@id([user_id, friend_id])
 }
