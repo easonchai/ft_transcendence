@@ -23,6 +23,7 @@ import {
 } from "antd";
 import locale from "antd/locale/en_US";
 import { ProCard } from "@ant-design/pro-components";
+import { TwoFactorStatus } from "@prisma/client";
 
 const DynamicProLayout = dynamic(() => import("../components/Layout"), {
   ssr: false,
@@ -61,7 +62,11 @@ function MyComponent(props: AppProps) {
   });
 
   useEffect(() => {
-    if (session && session.user.two_factor && session.two_fa !== "PASSED") {
+    if (
+      session &&
+      session.user.two_factor &&
+      session.two_fa !== TwoFactorStatus.PASSED
+    ) {
       router.push("/2fa");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

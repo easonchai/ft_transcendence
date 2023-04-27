@@ -150,13 +150,22 @@ export class UserController {
     return await this.userService.getUserChannels(auth_user_id);
   }
 
-  @Get('setup-2fa')
+  @Post('2fa')
+  @ApiOperation({ summary: 'Verify 2FA authentication' })
+  async verify2fa(
+    @UserId() auth_user_id: string,
+    @Body() data: Complete2FASetupDto,
+  ) {
+    return await this.userService.verify2faCode(auth_user_id, data);
+  }
+
+  @Get('2fa/setup')
   @ApiOperation({ summary: 'Setup 2FA authentication the first time' })
   async setup2fa(@UserId() auth_user_id: string) {
     return await this.userService.setup2fa(auth_user_id);
   }
 
-  @Post('setup-2fa/complete')
+  @Post('2fa/complete')
   @ApiOperation({ summary: 'Complete 2FA authentication the first time' })
   async completeSetup2fa(
     @UserId() auth_user_id: string,
@@ -165,13 +174,13 @@ export class UserController {
     return await this.userService.completeSetup2fa(auth_user_id, data);
   }
 
-  @Post('2fa')
-  @ApiOperation({ summary: 'Verify 2FA authentication' })
-  async verify2fa(
+  @Post('2fa/disable')
+  @ApiOperation({ summary: 'Disable 2FA authentication' })
+  async disable2fa(
     @UserId() auth_user_id: string,
     @Body() data: Complete2FASetupDto,
   ) {
-    return await this.userService.verify2faCode(auth_user_id, data);
+    return await this.userService.disable2faCode(auth_user_id, data);
   }
 
   @Get('image/:id')

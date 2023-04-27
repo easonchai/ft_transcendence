@@ -28,10 +28,26 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, trigger, user, newSession }) {
+    async session({ session, token, trigger, user, newSession }) {
+      /**
+       * Currently, the best way is to actually retrieve the session info manually
+       * We just attach the 2FA status to the session
+       */
+      const prisma = await MyPrisma.getPrisma();
+      const dbSession = await prisma.session.findFirst({
+        where: {
+          userId: user.id,
+        },
+      });
+
+      // Attach user to session
       session.user = user;
+
+      // Attach 2FA status to user to persist even after refresh
       if (trigger === "update" && newSession?.two_fa) {
         session.two_fa = newSession.two_fa;
+      } else {
+        session.two_fa = dbSession?.twoFaStatus;
       }
       return session;
     },

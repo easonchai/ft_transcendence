@@ -1,4 +1,5 @@
 import { usersService } from "@/apis/usersService";
+import { TwoFactorStatus } from "@prisma/client";
 import { Button, Form, Input, Typography, message } from "antd";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -17,7 +18,6 @@ const TwoFA = () => {
     mutationKey: "verify2fa",
     mutationFn: async () => {
       if (code) {
-        // If first time setting up 2FA, we should ensure that the 2FA setup succeeds
         return await usersService.verify2fa(code);
       }
       throw new Error("No 2FA code supplied");
@@ -27,7 +27,7 @@ const TwoFA = () => {
 
       await updateSession({
         ...session,
-        two_fa: "PASSED",
+        two_fa: TwoFactorStatus.PASSED,
       });
       router.push("/");
     },

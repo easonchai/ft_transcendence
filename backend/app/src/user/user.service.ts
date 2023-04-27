@@ -9,6 +9,7 @@ import {
 import {
   ChannelUsers,
   Channels,
+  TwoFactorStatus,
   User,
   UserBlocks,
   UserFriends,
@@ -222,10 +223,65 @@ export class UserService {
     });
   }
 
+  private async attach2faSession(auth_user_id: string) {
+    const session = await this.prisma.session.findFirst({
+      where: {
+        userId: auth_user_id,
+      },
+    });
+    if (session) {
+      await this.prisma.session.update({
+        where: {
+          id: session.id,
+        },
+        data: {
+          twoFaStatus: TwoFactorStatus.PASSED,
+        },
+      });
+    }
+  }
+
+  private async detach2faSession(auth_user_id: string) {
+    const session = await this.prisma.session.findFirst({
+      where: {
+        userId: auth_user_id,
+      },
+    });
+    if (session) {
+      await this.prisma.session.update({
+        where: {
+          id: session.id,
+        },
+        data: {
+          twoFaStatus: null,
+        },
+      });
+    }
+  }
+
   async verify2faCode(auth_user_id: string, data: Complete2FASetupDto) {
     const verified = await this.verify2fa(auth_user_id, data);
     if (verified) {
+      await this.attach2faSession(auth_user_id);
       return true;
+    } else {
+      throw new HttpException('Invalid 2FA code', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async disable2faCode(auth_user_id: string, data: Complete2FASetupDto) {
+    const verified = await this.verify2fa(auth_user_id, data);
+    if (verified) {
+      await this.prisma.user.update({
+        where: {
+          id: auth_user_id,
+        },
+        data: {
+          two_factor: false,
+          two_factor_code: null,
+        },
+      });
+      await this.detach2faSession(auth_user_id);
     } else {
       throw new HttpException('Invalid 2FA code', HttpStatus.BAD_REQUEST);
     }
@@ -243,6 +299,7 @@ export class UserService {
           two_factor: true,
         },
       });
+      await this.attach2faSession(auth_user_id);
     } else {
       throw new HttpException(
         'Unable to setup 2FA! Code is incorrect.',

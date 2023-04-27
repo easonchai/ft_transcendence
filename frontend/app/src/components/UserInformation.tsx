@@ -54,7 +54,6 @@ const UserInformation = (props: UserInformationProps) => {
       }
       return usersService.updateUser({
         name: modalInput.name,
-        two_factor: modalInput.two_factor,
       });
     },
     onSuccess: (res) => {
@@ -67,6 +66,35 @@ const UserInformation = (props: UserInformationProps) => {
       });
       setModalIsOpen(false);
       updateSession({ ...session, user: res });
+    },
+    onError: (e: any) => {
+      props.messageApi.error(e.response?.data?.message || e.message);
+    },
+  });
+
+  const disableTwoFactorMutation = useMutation({
+    mutationKey: "disable2fa",
+    mutationFn: async () => {
+      if (modalInput.code && props.user.two_factor) {
+        return await usersService.disable2fa(modalInput.code);
+      }
+      throw new Error("No 2FA code supplied");
+    },
+    onSuccess: (res) => {
+      props.messageApi.success("Successfully disabled 2FA");
+
+      props.setUser({
+        ...props.user,
+        name: res.name,
+        two_factor: false,
+      });
+      setModalInput({
+        ...modalInput,
+        two_factor: false,
+        code: "",
+      });
+      setModalIsOpen(false);
+      updateSession({ ...session, user: res, two_fa: null });
     },
     onError: (e: any) => {
       props.messageApi.error(e.response?.data?.message || e.message);
@@ -117,6 +145,7 @@ const UserInformation = (props: UserInformationProps) => {
           modalIsOpen,
           setModalIsOpen,
           updateUserMutation,
+          disableTwoFactorMutation,
           hasActivatedTwoFactor: props.user.two_factor,
         }}
       />
@@ -133,6 +162,7 @@ interface EditModalProps {
   hasActivatedTwoFactor: boolean;
   setModalIsOpen: Dispatch<SetStateAction<boolean>>;
   updateUserMutation: UseMutationResult<User, unknown, void, unknown>;
+  disableTwoFactorMutation: UseMutationResult<User, unknown, void, unknown>;
 }
 
 const EditModal = (props: EditModalProps) => {
@@ -194,10 +224,36 @@ const EditModal = (props: EditModalProps) => {
             defaultChecked={props.modalInput.two_factor}
             disabled={props.hasActivatedTwoFactor}
             onChange={(checked) => {
-              props.setModalInput({ ...props.modalInput, two_factor: checked });
+              props.setModalInput({
+                ...props.modalInput,
+                two_factor: checked,
+              });
             }}
           />
         </Form.Item>
+        {props.hasActivatedTwoFactor && (
+          <div className="flex flex-row gap-4">
+            <Form.Item name="code" label="2FA Code">
+              <Input
+                value={props.modalInput.code}
+                onChange={(e) =>
+                  props.setModalInput({
+                    ...props.modalInput,
+                    code: e.target.value,
+                  })
+                }
+              />
+            </Form.Item>
+            <Button
+              onClick={() => {
+                props.disableTwoFactorMutation.mutate();
+                form.resetFields;
+              }}
+            >
+              Disable 2FA
+            </Button>
+          </div>
+        )}
         {secret && (
           <>
             <QRCode value={secret} />

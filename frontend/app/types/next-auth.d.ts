@@ -1,8 +1,6 @@
-import { User as PrismaUser } from "@prisma/client";
+import { User as PrismaUser, TwoFactorStatus } from "@prisma/client";
 import NextAuth, { DefaultSession } from "next-auth";
 import { AdapterUser } from "next-auth/adapters";
-
-export type TwoFaStatus = "PASSED" | "REQUIRED" | "NONE";
 
 export interface TwoFactorSetup {
   ascii: string;
@@ -17,7 +15,7 @@ declare module "next-auth" {
    */
   interface Session {
     user: User;
-    two_fa: TwoFaStatus;
+    two_fa?: TwoFactorStatus | null;
   }
 
   interface User extends PrismaUser {}

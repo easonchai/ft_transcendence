@@ -61,7 +61,7 @@ const getUserMessages = async (id: string): Promise<UserMessages[]> => {
 };
 
 const get2faCode = async (): Promise<TwoFactorSetup> => {
-  const res = await apiClient.get(`/users/setup-2fa`);
+  const res = await apiClient.get(`/users/2fa/setup`);
   return res.data;
 };
 
@@ -80,7 +80,7 @@ const createUserBlock = async (id: string): Promise<UserBlocks> => {
 const completeSetup2fa = async (
   code: string
 ): Promise<AxiosResponse<any, any>> => {
-  return apiClient.post(`/users/setup-2fa/complete`, {
+  return apiClient.post(`/users/2fa/complete`, {
     code,
   });
 };
@@ -92,12 +92,16 @@ const verify2fa = async (code: string) => {
   return res.data;
 };
 
+const disable2fa = async (code: string) => {
+  const res = await apiClient.post(`/users/2fa/disable`, {
+    code,
+  });
+  return res.data;
+};
+
 // Update
 
-const updateUser = async (body: {
-  name: string;
-  two_factor: boolean;
-}): Promise<User> => {
+const updateUser = async (body: { name: string }): Promise<User> => {
   const res = await apiClient.patch(`/users`, body);
   return res.data;
 };
@@ -145,6 +149,7 @@ export const usersService = {
   createUserBlock,
   completeSetup2fa,
   verify2fa,
+  disable2fa,
   updateUser,
   updateUserFriends,
   deleteUserFriend,
