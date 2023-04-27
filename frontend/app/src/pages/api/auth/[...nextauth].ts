@@ -30,6 +30,9 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async session({ session, trigger, user, newSession }) {
       session.user = user;
+      if (trigger === "update" && newSession?.two_fa) {
+        session.two_fa = newSession.two_fa;
+      }
       return session;
     },
   },

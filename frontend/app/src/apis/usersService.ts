@@ -86,7 +86,7 @@ const completeSetup2fa = async (
 };
 
 const verify2fa = async (code: string) => {
-  const res = await apiClient.post(`/users/setup-2fa/complete`, {
+  const res = await apiClient.post(`/users/2fa`, {
     code,
   });
   return res.data;

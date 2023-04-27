@@ -142,8 +142,8 @@ const EditModal = (props: EditModalProps) => {
   useEffect(() => {
     const setup2fa = async () => {
       if (props.modalInput.two_factor && !props.hasActivatedTwoFactor) {
-        const res = await apiClient.get("/users/setup-2fa");
-        setSecret(res.data.otpauth_url);
+        const res = await usersService.get2faCode();
+        setSecret(res.otpauth_url);
       }
     };
 
