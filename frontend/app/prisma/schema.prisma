@@ -34,6 +34,11 @@ enum FriendStatus {
   ACCEPTED
 }
 
+enum TwoFactorStatus {
+  PASSED
+  PENDING
+}
+
 // --- NextAuth Prisma Schema ---
 
 model Account {
@@ -49,7 +54,7 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-	created_at				BigInt	// 42 NextAuth
+  created_at        BigInt // 42 NextAuth
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -57,11 +62,12 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
+  id           String           @id @default(cuid())
+  sessionToken String           @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  twoFaStatus  TwoFactorStatus?
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -76,6 +82,7 @@ model User {
   // displayname      String               @unique
   status           UserStatus           @default(OFFLINE)
   two_factor       Boolean              @default(false)
+  two_factor_code  String?
   matches          UserMatch[]
   blocked          UserBlocks[]         @relation("blocker")
   blocked_by       UserBlocks[]         @relation("blocked_by")
@@ -137,7 +144,7 @@ model UserFriends {
   friend     User         @relation("friend_of", fields: [friend_id], references: [id], onDelete: Cascade)
   status     FriendStatus
   created_at DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
+  updated_at DateTime     @updatedAt
 
   @@id([user_id, friend_id])
 }
