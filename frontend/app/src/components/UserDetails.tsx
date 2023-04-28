@@ -199,7 +199,6 @@ const UploadModal = (props: UploadModalProps) => {
   const handleUpload = () => {
     let formdata = new FormData();
 
-    console.log(image);
     formdata.append(
       "file",
       image.file.originFileObj,
