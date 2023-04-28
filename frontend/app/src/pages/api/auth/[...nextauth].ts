@@ -20,11 +20,6 @@ export const authOptions: AuthOptions = {
     FortyTwoProvider({
       clientId: process.env.FORTYTWO_ID!,
       clientSecret: process.env.FORTYTWO_SECRET!,
-      profile(profile) {
-        return {
-          ...profile,
-        };
-      },
     }),
   ],
   callbacks: {
@@ -51,6 +46,9 @@ export const authOptions: AuthOptions = {
       }
       return session;
     },
+  },
+  pages: {
+    newUser: "/onboarding",
   },
 };
 
