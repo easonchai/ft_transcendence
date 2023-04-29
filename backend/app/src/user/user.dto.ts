@@ -33,6 +33,9 @@ export class GetUserDto extends CreatedUpdated implements User {
   name: string;
 
   @ApiProperty()
+  intraId: number | null;
+
+  @ApiProperty()
   email: string | null;
 
   @ApiProperty()

@@ -122,9 +122,9 @@ export default function UserDetails(props: UserDetailsProps) {
             <div onClick={() => setUploadModalIsOpen(true)}>
               <Image
                 src={
-                  user?.image
-                    ? `http://localhost:3000/users/image/${user.id}`
-                    : `https://source.boringavatars.com/pixel/150/${new Date().getTime()}`
+                  user?.image?.includes("http")
+                    ? user?.image
+                    : `http://localhost:3000/users/image/${user?.id}`
                 }
                 width={150}
                 preview={false}

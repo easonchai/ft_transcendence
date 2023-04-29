@@ -1,63 +1,71 @@
-import React from 'react'
-import { ProCard, ProListMetas } from '@ant-design/pro-components'
-import { Avatar, List } from 'antd'
+import React, { useEffect, useState } from "react";
+import { ProCard } from "@ant-design/pro-components";
+import { Avatar, List } from "antd";
+import { useSession } from "next-auth/react";
+import { usersService } from "@/apis/usersService";
 
-const MockData: any = [
-	{
-		name: "It's a rich man world 3",
-		image: 'https://cdn.intra.42.fr/achievement/image/38/SOC004.svg',
-		desc: 'Collected 500 wallet points'
-	},
-	{
-		name: 'Boss Hunter 4',
-		image: 'https://cdn.intra.42.fr/achievement/image/20/PRO005.svg',
-		desc: 'Validated 21 projet with the maximum score.'
-	},
-	{
-		name: "It's a rich man world 3",
-		image: 'https://cdn.intra.42.fr/achievement/image/38/SOC004.svg',
-		desc: 'Collected 500 wallet points'
-	},
-	{
-		name: 'Boss Hunter 4',
-		image: 'https://cdn.intra.42.fr/achievement/image/20/PRO005.svg',
-		desc: 'Validated 21 projet with the maximum score.'
-	},
-	{
-		name: "It's a rich man world 3",
-		image: 'https://cdn.intra.42.fr/achievement/image/38/SOC004.svg',
-		desc: 'Collected 500 wallet points'
-	},
-	{
-		name: 'Boss Hunter 4',
-		image: 'https://cdn.intra.42.fr/achievement/image/20/PRO005.svg',
-		desc: 'Validated 21 projet with the maximum score.'
-	}
-]
-
-const UserAchievements = () => {
-	return (
-		<ProCard
-			title="Achievements"
-			className='h-full'
-			bordered
-			headerBordered
-		>
-			<List 
-				style={{ overflowY: 'scroll', maxHeight: 320 }}
-				dataSource={MockData}
-				renderItem={(item: any, index) => (
-					<List.Item key={index}>
-						<List.Item.Meta 
-							title={item.name}
-							description={item.desc}
-							avatar={<Avatar src={item.image} />}
-						/>
-					</List.Item>
-				)}
-			/>
-		</ProCard>
-	)
+interface Achievement {
+  achievements: [];
+  campus: string[];
+  description: string;
+  id: number;
+  image: string;
+  kind: string;
+  name: string;
+  nbr_of_success: number;
+  parent: null;
+  tier: string;
+  title: null;
+  users_url: string;
+  visible: true;
 }
 
-export default UserAchievements
+const UserAchievements = () => {
+  const { data: session } = useSession();
+  const [achievements, setAchievements] = useState<Achievement[]>();
+
+  useEffect(() => {
+    const retrieveInfo = async () => {
+      /**
+       * Now to set achievements, we need to do a few things
+       * 1. We need to get all achievements of the user
+       * 2. Then, map it and retrieve all achievement info of the user
+       */
+      if (session && session.user) {
+        const achievements = await usersService.getAchievements();
+        setAchievements(achievements);
+      }
+    };
+
+    if (session?.user) {
+      retrieveInfo();
+    }
+  }, [session?.user]);
+
+  return (
+    <ProCard title="Achievements" className="h-full" bordered headerBordered>
+      <List
+        style={{ overflowY: "scroll", maxHeight: 320 }}
+        dataSource={achievements}
+        renderItem={(item: Achievement, index) => (
+          <List.Item key={index}>
+            <List.Item.Meta
+              title={item.name}
+              description={item.description}
+              avatar={
+                <Avatar
+                  src={item.image.replace(
+                    "/uploads",
+                    "https://cdn.intra.42.fr"
+                  )}
+                />
+              }
+            />
+          </List.Item>
+        )}
+      />
+    </ProCard>
+  );
+};
+
+export default UserAchievements;
