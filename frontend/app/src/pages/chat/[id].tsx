@@ -33,7 +33,7 @@ const chat = () => {
 	})
 	
 	useEffect(() => {
-		const s = io(`${process.env.NESTJS_WS}/chats?receiver_id=${id}`, {
+		const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/chats?receiver_id=${id}`, {
 			reconnection: false,
 			withCredentials: true
 		})

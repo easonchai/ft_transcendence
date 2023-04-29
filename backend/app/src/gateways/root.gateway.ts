@@ -30,6 +30,7 @@ export class RootGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 	
 	async handleConnection(client: Socket, ...args: any[]) {
+		this.logger.debug(`${client.id} connected`);
 		const token = getCookieTokenFromWs(client.handshake.headers.cookie);
 		if (!token) throw new Error('Connection error');
 		const session = await this.prisma.session.findUniqueOrThrow({

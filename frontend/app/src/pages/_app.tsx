@@ -24,6 +24,7 @@ import {
 import locale from "antd/locale/en_US";
 import { ProCard } from "@ant-design/pro-components";
 import { TwoFactorStatus } from "@prisma/client";
+import apiClient from "@/apis/ApiClient";
 
 const DynamicProLayout = dynamic(() => import("../components/Layout"), {
   ssr: false,

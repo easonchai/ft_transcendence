@@ -14,9 +14,10 @@ export class SocketIOAdapter extends IoAdapter {
 		const cors = {
 			origin: [
         `http://localhost:${clientPort}`,
+				process.env.NEXTAUTH_URL,
         new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`).toString(),
 			],
-			credentials: true
+			credentials: true,
 		}
 		
 		// this.logger.debug('Configuring SocketIOAdapter', cors);

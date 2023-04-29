@@ -123,7 +123,7 @@ export default function UserDetails(props: UserDetailsProps) {
               <Image
                 src={
                   user?.image
-                    ? `http://localhost:3000/users/image/${user.id}`
+                    ? `${process.env.NEXT_PUBLIC_NESTJS_URL}users/image/${user.id}`
                     : `https://source.boringavatars.com/pixel/150/${new Date().getTime()}`
                 }
                 width={150}

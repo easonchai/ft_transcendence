@@ -46,8 +46,8 @@ const Layout = ({ children }: PropsWithChildren) => {
 	const [s, setS] = useState<Socket>();
 	
 	useEffect(() => {
-		const s = io(`${process.env.NESTJS_WS}/`, {
-			reconnection: false,
+		const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/`, {
+			reconnection: true,
 			withCredentials: true
 		})
 		
@@ -55,7 +55,8 @@ const Layout = ({ children }: PropsWithChildren) => {
 			console.log('Connected to root');
 		})
 		
-		s.on('connect_error', () => {
+		s.on('connect_error', (err) => {
+			console.log(err);
 			console.log('Error connecting to root');
 		})
 		
@@ -67,7 +68,11 @@ const Layout = ({ children }: PropsWithChildren) => {
 			console.log(error.message);
 		})
 		setS(s);
-	}, [router.isReady])
+		const disconnect = () => {
+			s.disconnect();
+		}
+		return disconnect;
+	}, [])
 	
 	return (
 		<AppContext.Provider value={{ socket: s!, onlineClients: onlineClients }}>

@@ -141,7 +141,7 @@ const ChannelsChat = () => {
 	})
 	
 	useEffect(() => {
-		const s = io(`${process.env.NESTJS_WS}/channels?id=${id}`, {
+		const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/channels?id=${id}`, {
 			reconnection: false,
 			withCredentials: true,
 		});

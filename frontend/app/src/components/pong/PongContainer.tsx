@@ -47,7 +47,7 @@ export const PongApp = () => {
   };
 	
 	useEffect(() => {
-		const s = io(`${process.env.NESTJS_WS}/match`, {
+		const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/match`, {
 			withCredentials: true,
 			reconnection: true,
 			autoConnect: false
