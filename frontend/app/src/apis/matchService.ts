@@ -1,6 +1,5 @@
 import { User } from "@prisma/client";
 import apiClient from "./ApiClient";
-import { PaddleProps } from "@/components/pong/pongSlice";
 
 interface GetUserMatchesRresponse {
 	score: number;
