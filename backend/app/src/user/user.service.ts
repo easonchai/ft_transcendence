@@ -345,7 +345,7 @@ export class UserService {
   ): Promise<StreamableFile> {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: {
-        id: auth_user_id,
+        id: user_id,
       },
     });
     const file = createReadStream(join(`${process.cwd()}`, user.image));

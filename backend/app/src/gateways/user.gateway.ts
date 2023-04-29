@@ -10,6 +10,7 @@ import { getCookieTokenFromWs } from "src/utils/WsCookieParser";
 import { WsAuthGuard } from "src/guards/auth.guards";
 import { ChatSocketMessageDto } from "src/user/user.dto";
 import { GatewayUserId } from "src/decorators/user_id.decorators";
+import { v4 as uuidv4 } from "uuid";
 
 @UsePipes(new ValidationPipe({
 	forbidNonWhitelisted: true,
@@ -41,38 +42,43 @@ export class ChatsGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
 		const session = await this.prisma.session.findUniqueOrThrow({ where: { sessionToken: token } });
 		const user = await this.prisma.user.findUniqueOrThrow({ where: { id: session.userId } });
 		
-		let roomName: string;
-		roomName = `${receiver_id}${user.id}`;
+		let roomId: string;
+		roomId = `${receiver_id}${user.id}`;
 		for (const [key, value] of this.io.adapter.rooms) {
-			if (roomName === key) break ;
+			if (roomId === key) break ;
 			if (`${user.id}${receiver_id}` === key) {
-				roomName = key;
+				roomId = key;
+				break ;
+			} else if (`${receiver_id}${user.id}` === key) {
+				roomId = key;
 				break ;
 			}
 		}
-		client.join(roomName);
+		
+		client.join(roomId);
+		client.emit('joinedRoom', { roomId: roomId });
 	}
 	
 	handleDisconnect(client: Socket) {
 		this.logger.debug(`client ${client.id} disconnected`)
-		for (const key in this.io.adapter.rooms) {
-			if (this.io.adapter.rooms[key] === client.id) {
-				client.leave(key);
-				break ;
-			}
-		}
+		// for (const key in this.io.adapter.rooms) {
+		// 	if (this.io.adapter.rooms[key] === client.id) {
+		// 		client.leave(key);
+		// 		break ;
+		// 	}
+		// }
 	}
 	
 	@UseGuards(WsAuthGuard)
 	@SubscribeMessage('chatMessages')
 	async handleChatMessages(@ConnectedSocket() client: Socket, @MessageBody() body: ChatSocketMessageDto, @GatewayUserId() auth_user_id: string) {
 		const receiver_id: string = client.handshake.query.receiver_id as string;
-		const created = await this.usersService.createUserMessages(receiver_id, body, auth_user_id);
-		let roomId: string;
-		for (const [key, value] of this.io.adapter.rooms) {
-			if (value.has(client.id)) roomId = key;
-		}
-		if (created) this.io.in(roomId).emit('chatMessages', created);
+		const created = await this.usersService.createUserMessages(receiver_id, { message: body.message }, auth_user_id);
+		// let roomId: string;
+		// for (const [key, value] of this.io.adapter.rooms) {
+		// 	if (value.has(client.id)) roomId = key;
+		// }
+		if (created) this.io.in(body.roomId).emit('chatMessages', created);
 		else throw new WsException('User Message sent failed');
 	}
 }

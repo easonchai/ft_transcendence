@@ -124,4 +124,7 @@ export class UpdateUserFriendsDto {
 export class ChatSocketMessageDto {
   @Allow()
   message: string;
+	
+	@Allow()
+	roomId: string;
 }

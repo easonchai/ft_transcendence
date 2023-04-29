@@ -187,7 +187,7 @@ export class UserController {
   // @Public()
   @ApiOperation({ summary: 'Get user image' })
   @ApiOkResponse({ type: Blob })
-  async getUserImage(@Param(':id') id: string, @UserId() auth_user_id: string) {
+  async getUserImage(@Param('id') id: string, @UserId() auth_user_id: string) {
     return await this.userService.getUserImage(id, auth_user_id);
   }
 

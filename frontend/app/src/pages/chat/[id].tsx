@@ -18,6 +18,7 @@ const chat = () => {
 	const [user, setUser] = useState<User>();
 	const [messageApi, contextHolder] = message.useMessage();
 	const [socket, setSocket] = useState<Socket>();
+	const [roomId, setRommId] = useState<string>('');
 	
 	const { isLoading: getUserMessagesIsLoading } = useQuery({
 		queryKey: 'getUserMessagesIsLoading',
@@ -43,6 +44,9 @@ const chat = () => {
 		s.on('connect_error', () => {
 			messageApi.error('Message gateway connect error.');
 		})
+		s.on('joinedRoom', (body: { roomId: string }) => {
+			setRommId(body.roomId);
+		})
 		s.on('exception', (error) => {
 			messageApi.error(error.message);
 		})
@@ -57,7 +61,7 @@ const chat = () => {
 	}, [])
 	
 	const emitChatMessages = () => {
-		socket?.emit('chatMessages', { message: msg })
+		socket?.emit('chatMessages', { message: msg, roomId: roomId })
 		setMsg('');
 	}
 	

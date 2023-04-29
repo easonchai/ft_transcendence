@@ -226,7 +226,7 @@ const ChannelsChat = () => {
 												<List.Item.Meta 
 													style={{ alignItems: 'center' }} 
 													title={<Space>{item.user.name}<UserStatus id={item.user_id} /> </Space>} 
-													avatar={<Avatar src={item.user.image ? `${process.env.NESTJS_URL}/users/image/${item.user_id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
+													avatar={<Avatar src={item.user.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${item.user_id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
 												/>
 												<Tag color={item.type === 'OWNER' ? 'gold' : 'default'}>{item.type}</Tag>
 											</List.Item>
@@ -250,7 +250,7 @@ const ChannelsChat = () => {
 															<List.Item.Meta 
 																style={{ alignItems: 'center' }} 
 																title={item.user.name} 
-																avatar={<Avatar src={item.user.image ? `${process.env.NESTJS_URL}/users/image/${item.user_id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
+																avatar={<Avatar src={item.user.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${item.user_id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
 															/>
 														</List.Item>
 													)}
@@ -272,7 +272,7 @@ const ChannelsChat = () => {
 															<List.Item.Meta 
 																style={{ alignItems: 'center' }} 
 																title={item.name} 
-																avatar={<Avatar src={item.image ? `${process.env.NESTJS_URL}/users/image/${item.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
+																avatar={<Avatar src={item.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${item.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
 															/>
 														</List.Item>
 													)}

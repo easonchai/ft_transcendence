@@ -42,13 +42,13 @@ const ChatWindow = (props: ChatWindowProps) => {
 											{item.message}
 										</Col>
 										<Col>
-											<Avatar src={`https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />
+											<Avatar src={user?.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${user.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`}  />
 										</Col>
 								</Row>
 							) : (
 								<Row key={index} className='py-3' gutter={5} align={'middle'} {...rowProps}>
 										<Col className='text-right'>
-											<Avatar src={`https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />
+											<Avatar src={user?.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${user.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`}  />
 										</Col>
 										<Col>
 											<div>
@@ -82,13 +82,13 @@ const ChatWindow = (props: ChatWindowProps) => {
 											{item.message}
 										</Col>
 										<Col>
-											<Avatar src={`https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />
+											<Avatar src={channeluser?.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${channeluser.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`}  />
 										</Col>
 								</Row>
 							) : (
 								<Row key={index} className='py-3' gutter={5} align={'middle'} {...rowProps}>
 										<Col className='text-right'>
-											<Avatar src={`https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />
+											<Avatar src={channeluser?.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${channeluser.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`}  />
 										</Col>
 										<Col>
 											<div>

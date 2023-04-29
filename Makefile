@@ -11,7 +11,7 @@ build:
 
 up:
 	sed -i '' 's|$(OLD_NEXTAUTH_URL)|NEXTAUTH_URL="http:\/\/$(shell python3 ip.py):3001"|g' ./frontend/app/.docker.env
-	sed -i '' 's|$(OLD_NESTJS_URL)|NEXT_PUBLIC_NESTJS_URL="http:\/\/$(shell python3 ip.py):3000/"|g' ./frontend/app/.docker.env
+	sed -i '' 's|$(OLD_NESTJS_URL)|NEXT_PUBLIC_NESTJS_URL="http:\/\/$(shell python3 ip.py):3000"|g' ./frontend/app/.docker.env
 	sed -i '' 's|$(OLD_NESTJS_WS)|NEXT_PUBLIC_NESTJS_WS="ws:\/\/$(shell python3 ip.py):3000"|g' ./frontend/app/.docker.env
 	sed -i '' 's|$(OLD_NEXTAUTH_URL_BACKEND)|NEXTAUTH_URL="http:\/\/$(shell python3 ip.py):3001"|g' ./backend/app/.docker.env
 	mkdir -p ./frontend/app/prisma
