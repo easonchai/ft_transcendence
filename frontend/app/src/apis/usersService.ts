@@ -65,6 +65,11 @@ const get2faCode = async (): Promise<TwoFactorSetup> => {
   return res.data;
 };
 
+const getAchievements = async (): Promise<any> => {
+  const res = await apiClient.get(`/intra/achievements`);
+  return res.data;
+};
+
 // Post
 
 const createUserFriends = async (id: string): Promise<UserFriends> => {
@@ -145,6 +150,7 @@ export const usersService = {
   getMyChannels,
   getUserMessages,
   get2faCode,
+  getAchievements,
   createUserFriends,
   createUserBlock,
   completeSetup2fa,
