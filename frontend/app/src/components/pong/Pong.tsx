@@ -14,6 +14,7 @@ import {
 } from "./pongSlice";
 import { io, Socket } from "socket.io-client";
 import { AnyAction } from "@reduxjs/toolkit";
+import { MessageInstance } from "antd/es/message/interface";
 
 interface PongProps {
 	winner: PlayerPosition | null,
@@ -25,7 +26,8 @@ interface PongProps {
 	dispatch: Dispatch<AnyAction>
 	socket: Socket | undefined
 	playerPosition: PlayerPosition
-	roomId: String
+	roomId: String,
+	messageApi: MessageInstance
 }
 
 const DEFAULTBUTTON = (config: ConfigProps) => {
@@ -60,7 +62,6 @@ export default function Pong(props: PongProps) {
   const { winner, players, status, config, ball, dispatch } = props;
 
   const onKeyDown = (event: KeyboardEvent) => {
-		console.log(event);
     switch (event.code) {
       case "KeyA": // A
         // Move the left paddle up
@@ -86,6 +87,7 @@ export default function Pong(props: PongProps) {
   });
 	
 	const handleReadyButtonPressed = () => {
+		props.messageApi.success('Ready');
 		props.socket!.emit('readyButtonPressed', { playerPosition: props.playerPosition, roomId: props.roomId });
 	}
 	

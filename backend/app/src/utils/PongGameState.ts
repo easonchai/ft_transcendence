@@ -1,4 +1,4 @@
-import { BALL_DEFAULTS, GameStatus, PlayerPosition, PongState, initialState } from "./PongValues";
+import { BALL_DEFAULTS, GAME_HEIGHT, GameStatus, PADDLE_HEIGHT, PlayerPosition, PongState, initialState } from "./PongValues";
 
 const randomDirection = () => {
   let direction = Math.random();
@@ -22,6 +22,30 @@ export class PongGameState {
 	
 	setStatus(st: GameStatus) {
 		this._state.status = st;
+	}
+	
+	movePaddleUp(pos: PlayerPosition) {
+		if (this._state.status !== "playing") return ;
+
+		const player = this._state.players[pos];
+		// Decrease the Y value
+		player.y -= this._state.velocity;
+		// Top of the board
+		if (player.y < 0) {
+			player.y = 0;
+		}
+	}
+	
+	movePaddleDown(pos: PlayerPosition) {
+		if (this._state.status !== "playing") return ;
+
+		const player = this._state.players[pos];
+
+		player.y += this._state.velocity;
+		// Bottom of the board
+		if (player.y + PADDLE_HEIGHT > GAME_HEIGHT) {
+			player.y = GAME_HEIGHT - PADDLE_HEIGHT;
+		}
 	}
 	
 	moveBall() {

@@ -16,6 +16,7 @@ import {
 } from "./pongSlice";
 import Pong from "./Pong";
 import { io, Socket } from "socket.io-client";
+import { message } from "antd";
 
 export const PongApp = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ export const PongApp = () => {
 	// const [roomId, setRoomId] = useState<String>('');
 	// const [playerPosition, setPlayerPosition] = useState<PlayerPosition>('left');
 	const [socket, setSocket] = useState<Socket>();
+	const [messageApi, contextHolder] = message.useMessage();
 	
   const pongContainerProps = {
     ball,
@@ -40,7 +42,8 @@ export const PongApp = () => {
     dispatch,
 		socket,
 		playerPosition,
-		roomId
+		roomId,
+		messageApi
   };
 	
 	useEffect(() => {
@@ -74,6 +77,7 @@ export const PongApp = () => {
 
   return (
     <div className="appContainer">
+			{ contextHolder }
       <Stage
         width={config.width}
         height={config.height}

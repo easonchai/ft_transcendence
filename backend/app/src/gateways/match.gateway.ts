@@ -10,13 +10,18 @@ import { SocketExceptionFilter } from "src/exceptions/ws_exception.filter";
 import { WsAuthGuard } from "src/guards/auth.guards";
 import { GatewayUserId } from "src/decorators/user_id.decorators";
 import { getCookieTokenFromWs } from "src/utils/WsCookieParser";
-// import { PongStates } from "src/utils/PongGame";
 import { PlayerPosition, initialState } from "src/utils/PongValues";
 import { PongStates } from "src/utils/PongGame";
 
 export interface MatchMessageBody {
 	roomId: string;
 	playerPosition: PlayerPosition;
+}
+
+export interface KeyPressBody {
+	roomId: string;
+	playerPosition: PlayerPosition;
+	direction: 'up' | 'down';
 }
 
 @UsePipes(new ValidationPipe({
@@ -40,7 +45,7 @@ export class MatchGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
 	afterInit(server: Socket) {
 		this.logger.debug('Match websocket gateway initialized');
 		this.io.use(GatewayRootMiddleware(this.prisma));
-		this.states = new PongStates(this.io);
+		this.states = new PongStates(this.io, this.matchesService);
 	}
 	
 	async handleConnection(client: Socket, ...args: any[]) {
@@ -56,12 +61,7 @@ export class MatchGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
 		if (!token) throw new WsException('Unauthorized');
 		const user = await this.prisma.session.findUniqueOrThrow({ where: { sessionToken: token } });
 		
-		let roomId: string = null;
-		client.rooms.forEach((v) => {
-			if (v !== client.id) roomId = v;
-		})
-		if (!roomId) return;
-		this.states.handleDisconnect(client, user.userId, roomId);
+		this.states.handleDisconnect(client, user.userId);
 	}
 	
 	@UseGuards(WsAuthGuard)
@@ -77,14 +77,15 @@ export class MatchGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
 		this.states.handleReadyButtonPressed(client, body);
 	}
 
-	// @SubscribeMessage('keyPress')
-	// async handleKeyPress(@ConnectedSocket() client: Socket, @MessageBody() body: KeyPressBody) {
-
-	// }
+	// @UseGuards(WsAuthGuard)
+	@SubscribeMessage('keyPress')
+	async handleKeyPress(@ConnectedSocket() client: Socket, @MessageBody() body: KeyPressBody) {
+		this.states.handleKeyPress(client, body);
+	}
 	
 	@UseGuards(WsAuthGuard)
 	@SubscribeMessage('game-over')
 	async handleGameOver(@ConnectedSocket() client: Socket, @MessageBody() body: MatchMessageBody, @GatewayUserId() auth_user_id: string) {
-		this.states.handleGameOver(client, body);
+		this.states.handleGameOver(client, body, auth_user_id);
 	}
 }

@@ -6,11 +6,11 @@ export type GameStatus = "game-over" | "paused" | "playing" | "matchMakingPage" 
 export const GAME_WIDTH = 800;
 export const GAME_HEIGHT = 500;
 
-const PADDLE_WIDTH = 20;
-const PADDLE_HEIGHT = 100;
-const PADDLE_OFFSET_X = 20;
-const PADDLE_OFFSET_Y = 50;
-const PADDLE_SPEED = 20;
+export const PADDLE_WIDTH = 20;
+export const PADDLE_HEIGHT = 100;
+export const PADDLE_OFFSET_X = 20;
+export const PADDLE_OFFSET_Y = 50;
+export const PADDLE_SPEED = 20;
 
 type PaddleProps = {
   x: number;
@@ -85,5 +85,5 @@ export const initialState: PongState = {
   ball: BALL_DEFAULTS,
 	winner: null,
 	status: 'newGamePage',
-	winningScore: 1
+	winningScore: 5
 };
