@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { RootGateway } from './gateways/root.gateway';
 import { MulterModule } from '@nestjs/platform-express';
 import { UserModule } from './user/user.module';
+import { IntraModule } from './intra/intra.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { UserModule } from './user/user.module';
 		UserModule,
 		MulterModule.register({
 			dest: './uploads',
-		})
+		}),
+		IntraModule
 	],
   controllers: [AppController],
   providers: [

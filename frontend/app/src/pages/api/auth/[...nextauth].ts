@@ -1,6 +1,6 @@
 import NextAuth, { AuthOptions, Session } from "next-auth";
 import FortyTwoProvider from "next-auth/providers/42-school";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserStatus } from "@prisma/client";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 class MyPrisma {
@@ -20,6 +20,21 @@ export const authOptions: AuthOptions = {
     FortyTwoProvider({
       clientId: process.env.FORTYTWO_ID!,
       clientSecret: process.env.FORTYTWO_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.id,
+          intraId: profile.id,
+          name: profile.usual_full_name,
+          email: profile.email,
+          emailVerified: null,
+          status: UserStatus.OFFLINE,
+          two_factor: false,
+          two_factor_code: null,
+          image: profile.image.link,
+          created_at: new Date(),
+          updated_at: new Date(),
+        };
+      },
     }),
   ],
   callbacks: {
