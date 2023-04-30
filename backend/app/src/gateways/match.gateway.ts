@@ -24,6 +24,12 @@ export interface KeyPressBody {
 	direction: 'up' | 'down';
 }
 
+export interface CustomizationBody {
+	color: number,
+	speed: number,
+	roomId: string
+}
+
 @UsePipes(new ValidationPipe({
 	forbidNonWhitelisted: true,
 	whitelist: true,
@@ -87,5 +93,11 @@ export class MatchGateway implements OnGatewayInit, OnGatewayConnection, OnGatew
 	@SubscribeMessage('game-over')
 	async handleGameOver(@ConnectedSocket() client: Socket, @MessageBody() body: MatchMessageBody, @GatewayUserId() auth_user_id: string) {
 		this.states.handleGameOver(client, body, auth_user_id);
+	}
+	
+	@UseGuards(WsAuthGuard)
+	@SubscribeMessage('customization')
+	async handleCustomization(@ConnectedSocket() client: Socket, @MessageBody() body: CustomizationBody) {
+		this.states.handleCustomization(body);
 	}
 }

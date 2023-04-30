@@ -1,7 +1,7 @@
 import { PlayerPosition, PlayerConnection, PongState, initialState, GameStatus, BALL_DEFAULTS } from "./PongValues";
 import { v4 as uuidv4 } from "uuid";
 import { Namespace, Socket } from 'socket.io'
-import { KeyPressBody, MatchMessageBody } from "src/gateways/match.gateway";
+import { CustomizationBody, KeyPressBody, MatchMessageBody } from "src/gateways/match.gateway";
 import { PongGameState } from "./PongGameState";
 import { MatchesService } from "src/matches/matches.service";
 
@@ -108,6 +108,11 @@ export class PongGame {
 	
 	setRoomId(id: string) {
 		this._roomId = id;
+	}
+	
+	setCustom(color: number, speed: number) {
+		this._state.setColor(color);
+		this._state.setSpeed(speed);
 	}
 	
 	clearGame() {
@@ -243,6 +248,15 @@ export class PongStates {
 		if (!game) return ;
 		
 		game.movePaddle(body.playerPosition, body.direction);
+	}
+	
+	handleCustomization(body: CustomizationBody) {
+		const game = this.games.get(body.roomId);
+		if (!game) return ;
+		
+		game.setCustom(body.color, body.speed);
+		
+		this.io.in(body.roomId).emit('customizationDone');
 	}
 	
 	handleGameOver(client: Socket, body: MatchMessageBody, auth_user_id: string) {

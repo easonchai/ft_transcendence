@@ -16,6 +16,7 @@ import {
   matchService,
 } from "@/apis/matchService";
 import { UploadOutlined } from "@ant-design/icons";
+import { useRouter } from "next/router";
 
 export interface UserDetailsProps {
   isMe: boolean;
@@ -33,6 +34,7 @@ export default function UserDetails(props: UserDetailsProps) {
   const [matches, setMatches] = useState<GetMatchesResponse[]>([]);
   const [stats, setStats] = useState<GetMatchStatsResponse>();
   const [uploadModalIsOpen, setUploadModalIsOpen] = useState<boolean>(false);
+	const router = useRouter();
 
   const { isLoading: getUserIsloading, isSuccess: getUserIsSuccess } = useQuery(
     {
@@ -108,6 +110,9 @@ export default function UserDetails(props: UserDetailsProps) {
       header={{
         extra: props.isMe
           ? [
+							<Button key="2" onClick={() => router.push('/match')}>
+								Game
+							</Button>,
               <Button key="1" onClick={() => signOut()} danger type="primary">
                 Log out
               </Button>,

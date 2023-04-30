@@ -16,7 +16,7 @@ import {
 } from "./pongSlice";
 import Pong from "./Pong";
 import { io, Socket } from "socket.io-client";
-import { message } from "antd";
+import { Button, Form, Select, message } from "antd";
 
 export const PongApp = () => {
   const dispatch = useDispatch();
@@ -27,11 +27,10 @@ export const PongApp = () => {
   const ball = useSelector(selectBall);
 	const roomId = useSelector(selectRoomId);
 	const playerPosition = useSelector(selectPlayerPosition);
-
-	// const [roomId, setRoomId] = useState<String>('');
-	// const [playerPosition, setPlayerPosition] = useState<PlayerPosition>('left');
 	const [socket, setSocket] = useState<Socket>();
 	const [messageApi, contextHolder] = message.useMessage();
+	const [color, setColor] = useState<string>('#0d0c22');
+	const [speed, setSpeed] = useState<number>(5);
 	
   const pongContainerProps = {
     ball,
@@ -62,6 +61,9 @@ export const PongApp = () => {
 		s.on('sync', (body: any) => {
 			dispatch(syncState(body));
 		})
+		s.on('customizationDone', () => {
+			messageApi.success('Customized');
+		})
 		setSocket(s);
 		const disconnectClient = () => {
 			if (s.connected) s.disconnect();
@@ -74,10 +76,46 @@ export const PongApp = () => {
 			socket!.emit('game-over', { roomId, playerPosition });
 		}
 	}, [winner])
-
+	
+	const handleColorChange = (new_color: string) => {
+		setColor(new_color)
+	}
+	
+	const handleSpeedChange = (value: number) => {
+		setSpeed(value);
+	}
+	
+	const handleCustomization = () => {
+		let c = color.substring(1);
+		c = `0x${c}`;
+		console.log(c);
+		socket?.emit('customization', { color: Number(c), speed: speed, roomId: roomId });
+	}
+	
+	
   return (
     <div className="appContainer">
 			{ contextHolder }
+			{
+				playerPosition === 'left' && status !== 'newGamePage' && status !== 'matchMakingPage' && (
+						<Form layout="inline" className="pb-5">
+							<Form.Item label="Speed" name="speed" initialValue={speed}>
+								<Select
+									options={[
+										{ value: 1, label: 'slow' },
+										{ value: 5, label: 'medium' },
+										{ value: 10, label: 'fast' },
+										{ value: 20, label: 'God-like' }
+									]}
+									onChange={handleSpeedChange}
+								/>
+							</Form.Item>
+							<Button onClick={handleCustomization} type="primary" disabled={status === 'playing' || status === 'game-over' ? true : false}>
+								Submit
+							</Button>
+						</Form>
+				)
+			}	
       <Stage
         width={config.width}
         height={config.height}

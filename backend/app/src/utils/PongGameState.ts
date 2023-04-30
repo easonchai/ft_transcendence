@@ -11,9 +11,11 @@ const randomDirection = () => {
 
 export class PongGameState {
 	private _state: PongState;
+	private _speed: number;
 	
 	constructor() {
 		this._state = structuredClone(initialState);
+		this._speed = 5;
 	}
 	
 	get winner(): PlayerPosition { return this._state.winner; }
@@ -22,6 +24,18 @@ export class PongGameState {
 	
 	setStatus(st: GameStatus) {
 		this._state.status = st;
+	}
+	
+	setColor(color: number) {
+		// console.log(parseInt(color.toString(16), 16));
+		console.log(0x999c22);
+		this._state.config.boardColor = 0x999c22;
+	}
+	
+	setSpeed(speed: number) {
+		this._speed = speed;
+		this._state.ball.x_speed = speed;
+		this._state.ball.y_speed = speed;
 	}
 	
 	movePaddleUp(pos: PlayerPosition) {
@@ -72,8 +86,8 @@ export class PongGameState {
 
 		// If the computer has scored
 		if (this._state.ball.x < 0) {
-			this._state.ball.x_speed = 5; // Serve the ball to the computer
-			this._state.ball.y_speed = 3 * randomDirection();
+			this._state.ball.x_speed = this._speed; // Serve the ball to the computer
+			this._state.ball.y_speed = this._speed * randomDirection();
 			this._state.ball.x = BALL_DEFAULTS.x;
 			this._state.ball.y = BALL_DEFAULTS.y;
 			paddle2.score += 1;
@@ -85,8 +99,8 @@ export class PongGameState {
 			}
 		} // The player has scored
 		else if (this._state.ball.x > this._state.config.width) {
-			this._state.ball.x_speed = -5; // Serve the ball to the player
-			this._state.ball.y_speed = 3 * randomDirection();
+			this._state.ball.x_speed = -this._speed; // Serve the ball to the player
+			this._state.ball.y_speed = this._speed * randomDirection();
 			this._state.ball.x = BALL_DEFAULTS.x;
 			this._state.ball.y = BALL_DEFAULTS.y;
 			paddle1.score += 1;
