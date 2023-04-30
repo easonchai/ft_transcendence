@@ -22,12 +22,6 @@ const useSize = (target: RefObject<HTMLDivElement>) => {
 	return size;
 }
 
-const Pong = () => {
-	<Container>
-		
-	</Container>
-}
-
 const index = () => {
 
 	const cardRef = useRef<HTMLDivElement>(null);
