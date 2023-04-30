@@ -5,6 +5,7 @@ import { ChannelMessagesResponse, ChannelUsersResponse } from '@/apis/channelsSe
 import { useSession } from 'next-auth/react';
 import moment from 'moment';
 import { User, UserMessages } from '@prisma/client';
+import ProfilePicAvatar from './ProfilePicAvatar';
 
 interface ChatWindowProps {
 	chats: Array<ChannelMessagesResponse | UserMessages>,
@@ -42,13 +43,13 @@ const ChatWindow = (props: ChatWindowProps) => {
 											{item.message}
 										</Col>
 										<Col>
-											<Avatar src={user?.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${user.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`}  />
+											<ProfilePicAvatar user={user!}/>
 										</Col>
 								</Row>
 							) : (
 								<Row key={index} className='py-3' gutter={5} align={'middle'} {...rowProps}>
 										<Col className='text-right'>
-											<Avatar src={user?.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${user.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`}  />
+											<ProfilePicAvatar user={user!}/>
 										</Col>
 										<Col>
 											<div>
@@ -82,13 +83,13 @@ const ChatWindow = (props: ChatWindowProps) => {
 											{item.message}
 										</Col>
 										<Col>
-											<Avatar src={channeluser?.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${channeluser.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`}  />
+											<ProfilePicAvatar user={channeluser!}/>
 										</Col>
 								</Row>
 							) : (
 								<Row key={index} className='py-3' gutter={5} align={'middle'} {...rowProps}>
 										<Col className='text-right'>
-											<Avatar src={channeluser?.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${channeluser.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`}  />
+											<ProfilePicAvatar user={channeluser!}/>
 										</Col>
 										<Col>
 											<div>

@@ -348,7 +348,7 @@ export class UserService {
         id: user_id,
       },
     });
-    const file = createReadStream(join(`${process.cwd()}`, user.image));
+		const file = createReadStream(join(`${process.cwd()}`, user.image));
     return new StreamableFile(file);
   }
 
@@ -497,11 +497,6 @@ export class UserService {
     const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: auth_user_id },
     });
-    if (user.image) {
-      unlink(user.image, (err) => {
-        if (err) throw err;
-      });
-    }
     const updated = await this.prisma.user.update({
       where: { id: auth_user_id },
       data: {

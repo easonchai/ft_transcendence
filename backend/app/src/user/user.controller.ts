@@ -2,31 +2,15 @@ import {
   Body,
   Controller,
   Delete,
-  FileTypeValidator,
   Get,
-  HttpException,
-  HttpStatus,
-  Logger,
   Param,
-  ParseFilePipe,
   Patch,
   Post,
-  Put,
-  Req,
-  Request,
-  RequestMethod,
-  Res,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
-  ValidationPipe,
 } from '@nestjs/common';
-import { diskStorage } from 'multer';
-import { v4 as uuidv4 } from 'uuid';
-import path = require('path');
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-  ChannelUsers,
   Channels,
   User,
   UserBlocks,
@@ -34,8 +18,6 @@ import {
   UserMessages,
 } from '@prisma/client';
 import { UserService } from './user.service';
-// import { UserDto, UserResponseDto } from './dto';
-// import { Request, Response } from 'express';
 import { Express } from 'express';
 import {
   ApiConsumes,

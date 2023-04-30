@@ -12,6 +12,7 @@ import moment from 'moment'
 import { User } from '@prisma/client';
 import { usersService } from '@/apis/usersService';
 import UserStatus from '@/components/UserStatus';
+import ProfilePicAvatar from '@/components/ProfilePicAvatar';
 
 const ChannelsChat = () => {
 	const router = useRouter();
@@ -226,7 +227,7 @@ const ChannelsChat = () => {
 												<List.Item.Meta 
 													style={{ alignItems: 'center' }} 
 													title={<Space>{item.user.name}<UserStatus id={item.user_id} /> </Space>} 
-													avatar={<Avatar src={item.user.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${item.user_id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
+													avatar={<ProfilePicAvatar user={item.user!}/>}
 												/>
 												<Tag color={item.type === 'OWNER' ? 'gold' : 'default'}>{item.type}</Tag>
 											</List.Item>
@@ -250,7 +251,7 @@ const ChannelsChat = () => {
 															<List.Item.Meta 
 																style={{ alignItems: 'center' }} 
 																title={item.user.name} 
-																avatar={<Avatar src={item.user.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${item.user_id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
+																avatar={<ProfilePicAvatar user={item.user!}/>}
 															/>
 														</List.Item>
 													)}
@@ -272,7 +273,7 @@ const ChannelsChat = () => {
 															<List.Item.Meta 
 																style={{ alignItems: 'center' }} 
 																title={item.name} 
-																avatar={<Avatar src={item.image ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${item.id}` : `https://source.boringavatars.com/pixel/150/${(new Date()).getTime()}`} />} 
+																avatar={<ProfilePicAvatar user={item!}/>}
 															/>
 														</List.Item>
 													)}

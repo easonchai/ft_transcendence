@@ -17,6 +17,7 @@ import {
 } from "@/apis/matchService";
 import { UploadOutlined } from "@ant-design/icons";
 import { useRouter } from "next/router";
+import ProfilePicImage from "./ProfilePicImage";
 
 export interface UserDetailsProps {
   isMe: boolean;
@@ -95,6 +96,7 @@ export default function UserDetails(props: UserDetailsProps) {
     mutationFn: (data: FormData) => usersService.updateImage(data),
     onSuccess: (res) => {
       setUser(res);
+			console.log(res)
       messageApi.success("Successfully updated image");
     },
     onError: (e: any) => {
@@ -125,16 +127,7 @@ export default function UserDetails(props: UserDetailsProps) {
         <Row gutter={10}>
           <Col span={4}>
             <div onClick={() => setUploadModalIsOpen(true)}>
-              <Image
-                src={
-                  user?.image
-                    ? `${process.env.NEXT_PUBLIC_NESTJS_URL}/users/image/${user.id}`
-                    : `https://source.boringavatars.com/pixel/150/${new Date().getTime()}`
-                }
-                width={150}
-                preview={false}
-                className="cursor-pointer rounded-full"
-              />
+							<ProfilePicImage user={user!} />
             </div>
           </Col>
           <Col span={20}>
