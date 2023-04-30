@@ -76,6 +76,7 @@ model User {
   email            String?              @unique
   emailVerified    DateTime?
   image            String?
+  intraId          Int?
   accounts         Account[]
   sessions         Session[]
   // --- Added for transcendence ---

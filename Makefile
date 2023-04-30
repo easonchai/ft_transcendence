@@ -15,8 +15,8 @@ up:
 	sed -i '' 's|$(OLD_NESTJS_WS)|NEXT_PUBLIC_NESTJS_WS="ws:\/\/$(shell python3 ip.py):3000"|g' ./frontend/app/.docker.env
 	sed -i '' 's|$(OLD_NEXTAUTH_URL_BACKEND)|NEXTAUTH_URL="http:\/\/$(shell python3 ip.py):3001"|g' ./backend/app/.docker.env
 	mkdir -p ./frontend/app/prisma
-	cp ./backend/app/prisma/schema.prisma ./frontend/app/prisma/	
-	docker compose up -d
+	cp ./backend/app/prisma/schema.prisma ./frontend/app/prisma/
+	docker compose up -d --force-recreate
 
 start:
 	docker compose start
