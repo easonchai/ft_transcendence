@@ -1,4 +1,4 @@
-version: "1"
+version: '1'
 services:
   backend:
     image: backend:v1
@@ -7,6 +7,8 @@ services:
     restart: always
     volumes:
       - ./backend/app/.docker.env:/app/.env
+      - /app/node_modules/
+      - ./backend/app:/app
     networks:
       - fortytwo
     ports:
@@ -23,6 +25,8 @@ services:
     restart: always
     volumes:
       - ./frontend/app/.docker.env:/app/.env
+      - /app/node_modules
+      - ./frontend/app:/app
     networks:
       - fortytwo
     ports:
