@@ -1,8 +1,8 @@
-#!bin/bash
+#!/bin/bash
 
 cd /app
 
 # db
 npx prisma migrate deploy
 
-npm run start
+npm run start:prod

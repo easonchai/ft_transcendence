@@ -5,6 +5,6 @@ RUN mkdir -p /app
 
 COPY ./entrypoint.bash .
 
-RUN chmod 777 ./entrypoint.bash
+RUN chmod 777 ./entrypoint.dev.bash
 
 ENTRYPOINT [ "./entrypoint.dev.bash" ]
