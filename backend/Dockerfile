@@ -1,7 +1,40 @@
-FROM node:19.8.1 AS development
+FROM node:19-slim AS builder
 
-RUN apt-get update
-RUN mkdir -p /app
+# For compatibility with M1 Macs
+RUN apt-get update && \
+    apt-get install -y procps && \
+    apt-get install -y openssl && \
+    apt-get install -y libc6
+
+# Create app directory
+WORKDIR /app
+
+# npm install files
+COPY app/package*.json ./
+COPY app/prisma ./app/prisma/
+
+# Install app dependencies
+RUN npm install
+
+COPY ./app .
+
+RUN npx prisma generate
+RUN npm run build
+
+FROM node:19-slim
+
+RUN apt-get update && \
+    apt-get install -y procps && \
+    apt-get install -y openssl && \
+    apt-get install -y libc6
+
+ENV NODE_ENV production
+
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/dist ./dist
 
 COPY ./entrypoint.bash .
 

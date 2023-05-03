@@ -54,13 +54,20 @@ const index = () => {
               <List.Item
                 key={index}
                 actions={[
-                  <Button onClick={() => addFriendMutation.mutate(item.id)}>
+                  <Button
+                    key={`${index}-1`}
+                    onClick={() => addFriendMutation.mutate(item.id)}
+                  >
                     Add
                   </Button>,
-                  <Button onClick={() => router.push(`/users/${item.id}`)}>
+                  <Button
+                    key={`${index}-2`}
+                    onClick={() => router.push(`/users/${item.id}`)}
+                  >
                     View
                   </Button>,
                   <Button
+                    key={`${index}-3`}
                     danger
                     onClick={() => blockUserMutation.mutate(item.id)}
                   >
