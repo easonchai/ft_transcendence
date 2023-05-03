@@ -4,7 +4,8 @@ FROM node:19-slim AS builder
 RUN apt-get update && \
     apt-get install -y procps && \
     apt-get install -y openssl && \
-    apt-get install -y libc6
+    apt-get install -y libc6 && \
+    apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 
 # Create app directory
 WORKDIR /app
@@ -26,7 +27,8 @@ FROM node:19-slim
 RUN apt-get update && \
     apt-get install -y procps && \
     apt-get install -y openssl && \
-    apt-get install -y libc6
+    apt-get install -y libc6 && \
+    apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 
 ENV NODE_ENV production
 
@@ -35,6 +37,7 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 
 COPY ./entrypoint.bash .
 
