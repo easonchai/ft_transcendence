@@ -1,9 +1,11 @@
-version: '1'
+version: "1"
 services:
   backend:
     image: backend:v1
     container_name: backend
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
     restart: always
     volumes:
       - ./backend/app/.docker.env:/app/.env
@@ -21,7 +23,9 @@ services:
   frontend:
     image: frontend:v1
     container_name: frontend
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     restart: always
     volumes:
       - ./frontend/app/.docker.env:/app/.env
