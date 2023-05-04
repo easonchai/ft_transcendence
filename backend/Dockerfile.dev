@@ -3,7 +3,7 @@ FROM node:19.8.1 AS development
 RUN apt-get update
 RUN mkdir -p /app
 
-COPY ./entrypoint.bash .
+COPY ./entrypoint.dev.bash .
 
 RUN chmod 777 ./entrypoint.dev.bash
 

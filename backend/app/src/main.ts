@@ -10,11 +10,11 @@ import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-	
-	// class-validator
-	app.useGlobalPipes(new ValidationPipe());
-	
-	app.useGlobalFilters(new AppExceptionFilter(app.get(HttpAdapterHost)));
+
+  // class-validator
+  app.useGlobalPipes(new ValidationPipe());
+
+  app.useGlobalFilters(new AppExceptionFilter(app.get(HttpAdapterHost)));
 
   // You will need this for nextauth on a production environment.
   // Trust me, I spent 12 hours crying on this
@@ -25,8 +25,8 @@ async function bootstrap() {
         : 'http://localhost:3001',
     credentials: true,
   });
-	
-	app.useWebSocketAdapter(new SocketIOAdapter(app));
+
+  app.useWebSocketAdapter(new SocketIOAdapter(app));
 
   // Easy API docs
   const config = new DocumentBuilder()
@@ -39,18 +39,21 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api', app, document);
 
-	app.use(cookieParser());
+  app.use(cookieParser());
   /**
    * Remember to add Prisma NestJS enableShutdownHooks.
    */
 
-	app.use((req: Request, res: Response, next: NextFunction) => {
-		Logger.log(`Request`, req.url);
-		Logger.log(`Response`, res);
-		next();
-	})
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    Logger.log(`Request`, req.url);
+    Logger.log(`Response`, res);
+    next();
+  });
 
   await app.listen(3000);
   console.log(`✅ Server listening on port 3000`);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.log(err);
+  bootstrap();
+});
