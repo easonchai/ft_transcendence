@@ -13,7 +13,7 @@ import {
   ConfigProps,
 } from "./pongSlice";
 import { io, Socket } from "socket.io-client";
-import { AnyAction } from "@reduxjs/toolkit";
+import { ActionCreatorWithPayload, AnyAction } from "@reduxjs/toolkit";
 import { MessageInstance } from "antd/es/message/interface";
 
 interface PongProps {
@@ -21,16 +21,17 @@ interface PongProps {
   players: { left: PaddleProps; right: PaddleProps };
   status: GameStatus;
   config: { boardColor: number; width: number; height: number };
-  // buttons: { restart: ButtonProps, ready: ButtonProps, resume: ButtonProps },
   ball: BallProps;
-  dispatch: Dispatch<AnyAction>;
   socket: Socket | undefined;
+	dispatch: Dispatch<AnyAction>;
   playerPosition: PlayerPosition;
   roomId: String;
   scale?: number;
   containerWidth?: number;
   containerHeight?: number;
   messageApi: MessageInstance;
+	keydown: "KeyA" | "KeyZ" | ""
+	setKeyDown: ActionCreatorWithPayload<"" | "KeyA" | "KeyZ", "pong/setKeyDown">
 }
 
 const DEFAULTBUTTON = (config: ConfigProps, scale = 1) => {
@@ -65,39 +66,38 @@ const DEFAULT_TEXT_PROPS = (
   };
 };
 
+let tmp: number = 0;
+
 export default function Pong(props: PongProps) {
-  const { winner, players, status, config, ball, dispatch, scale = 1 } = props;
+  const { winner, players, status, config, ball, dispatch, scale = 1, keydown, setKeyDown } = props;
+	
+	useTick((delta, ticker) => {
+		if (tmp++ % 2 === 0) return;
+		if (keydown === '') return ;
+		props.socket!.emit("keyPress", {
+			playerPosition: props.playerPosition,
+			direction: keydown === "KeyA" ? "up" : "down",
+			roomId: props.roomId,
+		})
+	})
+
+	const onKeyUp = (event: KeyboardEvent) => {
+		dispatch(setKeyDown(''));
+	}
 
   const onKeyDown = (event: KeyboardEvent) => {
-    switch (event.code) {
-      case "KeyA": // A
-        // Move the left paddle up
-        // dispatch(movePaddleUp(playerPosition));
-        props.socket!.emit("keyPress", {
-          playerPosition: props.playerPosition,
-          direction: "up",
-          roomId: props.roomId,
-        });
-        break;
-      case "KeyZ": // Z
-        // Move the left paddle down
-        // dispatch(movePaddleDown(playerPosition));
-        props.socket!.emit("keyPress", {
-          playerPosition: props.playerPosition,
-          direction: "down",
-          roomId: props.roomId,
-        });
-        break;
-      default:
-        return; // Do nothing
-    }
+		if (event.code === "KeyA" || event.code === "KeyZ") {
+			dispatch(setKeyDown(event.code));
+		}
   };
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
+		window.addEventListener("keyup", onKeyUp);
 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
+			window.removeEventListener("keyup", onKeyUp);
     };
   });
 

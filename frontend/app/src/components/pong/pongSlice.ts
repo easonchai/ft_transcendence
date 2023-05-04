@@ -62,6 +62,7 @@ export interface GameState {
   state: PongState;
   roomId: string;
   playerPosition: PlayerPosition;
+	keydown: "KeyA" | "KeyZ" | ""
 }
 
 const initialPongState: PongState = {
@@ -85,6 +86,7 @@ const initialState: GameState = {
   state: initialPongState,
   roomId: "",
   playerPosition: "left",
+	keydown: ""
 };
 
 export const pongSlice = createSlice({
@@ -103,30 +105,9 @@ export const pongSlice = createSlice({
     ) => {
       state.playerPosition = action.payload;
     },
-    // movePaddleUp: (state, action) => {
-    //   if (state.status === "paused") return state;
-
-    //   const position: PlayerPosition = action.payload;
-    //   const player = state.players[position];
-    //   // Decrease the Y value
-    //   player.y -= state.velocity;
-    //   // Top of the board
-    //   if (player.y < 0) {
-    //     player.y = 0;
-    //   }
-    // },
-    // movePaddleDown: (state, action) => {
-    //   if (state.status === "paused") return state;
-
-    //   const position: PlayerPosition = action.payload;
-    //   const player = state.players[position];
-
-    //   player.y += state.velocity;
-    //   // Bottom of the board
-    //   if (player.y + PADDLE_HEIGHT > GAME_HEIGHT) {
-    //     player.y = GAME_HEIGHT - PADDLE_HEIGHT;
-    //   }
-    // },
+		setKeyDown: (state, action: { payload: "KeyA" | "KeyZ" | ""; type: string }) => {
+			state.keydown = action.payload;
+		}
   },
 });
 
@@ -135,11 +116,7 @@ export const {
   syncState,
   setRoomId,
   setPlayerPosition,
-  // restartGame,
-  // keyPress,
-  // keyUp,
-  // movePaddleUp,
-  // movePaddleDown,
+	setKeyDown
 } = pongSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
@@ -157,8 +134,8 @@ export const selectRoomId = (state: AppState) => state.pong.roomId;
 
 export const selectPlayerPosition = (state: AppState) =>
   state.pong.playerPosition;
-
-// export const selectButtons = (state: AppState) => state.pong.buttons;
+	
+export const selectKeyDown = (state: AppState) => state.pong.keydown;
 
 export const selectBall = (state: AppState) => state.pong.state.ball;
 

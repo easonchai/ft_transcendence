@@ -9,10 +9,11 @@ import {
   selectRoomId,
   selectPlayerPosition,
   selectBall,
-  PlayerPosition,
+	setKeyDown,
   syncState,
   setRoomId,
   setPlayerPosition,
+	selectKeyDown,
 } from "./pongSlice";
 import Pong from "./Pong";
 import { io, Socket } from "socket.io-client";
@@ -27,6 +28,7 @@ export const PongApp = () => {
   const ball = useSelector(selectBall);
   const roomId = useSelector(selectRoomId);
   const playerPosition = useSelector(selectPlayerPosition);
+	const keydown = useSelector(selectKeyDown);
   const [socket, setSocket] = useState<Socket>();
   const [messageApi, contextHolder] = message.useMessage();
   const [color, setColor] = useState<string>("#0d0c22");
@@ -43,6 +45,8 @@ export const PongApp = () => {
     playerPosition,
     roomId,
     messageApi,
+		keydown,
+		setKeyDown
   };
 
   useEffect(() => {
