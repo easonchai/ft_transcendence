@@ -33,12 +33,12 @@ interface PongProps {
   messageApi: MessageInstance;
 }
 
-const DEFAULTBUTTON = (config: ConfigProps) => {
+const DEFAULTBUTTON = (config: ConfigProps, scale = 1) => {
   return {
     x: config.width / 2,
-    y: config.height / 2 - 50,
-    top_x: config.width / 2 - 120, // x - 120
-    top_y: config.height / 2 - 100, // y - 50
+    y: config.height / 2 - 50 * scale,
+    top_x: config.width / 2 - 120 * scale, // x - 120
+    top_y: config.height / 2 - 100 * scale, // y - 50
   };
 };
 
@@ -127,7 +127,8 @@ export default function Pong(props: PongProps) {
       <Paddle player={players.right} position="right" scale={scale} />
       {status === "newGamePage" && (
         <Button
-          data={{ ...DEFAULTBUTTON(config), text: "New Game" }}
+          scale={scale}
+          data={{ ...DEFAULTBUTTON(config, scale), text: "New Game" }}
           action={handleNewGame}
         />
       )}
@@ -139,7 +140,8 @@ export default function Pong(props: PongProps) {
       )}
       {status === "readyPage" && (
         <Button
-          data={{ ...DEFAULTBUTTON(config), text: "Ready" }}
+          scale={scale}
+          data={{ ...DEFAULTBUTTON(config, scale), text: "Ready" }}
           action={handleReadyButtonPressed}
         />
       )}
@@ -161,7 +163,8 @@ export default function Pong(props: PongProps) {
             )}
           />
           <Button
-            data={{ ...DEFAULTBUTTON(config), text: "New Game" }}
+            scale={scale}
+            data={{ ...DEFAULTBUTTON(config, scale), text: "New Game" }}
             action={handleNewGame}
           />
         </>

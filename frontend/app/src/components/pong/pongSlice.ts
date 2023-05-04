@@ -19,9 +19,16 @@ export type PaddleProps = {
   score: number;
 };
 
-export type PlayerPosition = 'left' | 'right'
+export type PlayerPosition = "left" | "right";
 
-export type GameStatus =  "game-over" | "paused" | "playing" | "matchMakingPage" | 'newGamePage' | 'readyPage' | 'waitingPage';
+export type GameStatus =
+  | "game-over"
+  | "paused"
+  | "playing"
+  | "matchMakingPage"
+  | "newGamePage"
+  | "readyPage"
+  | "waitingPage";
 
 export type BallProps = {
   x: number;
@@ -29,12 +36,13 @@ export type BallProps = {
   radius: number;
   x_speed: number;
   y_speed: number;
+  scale?: number;
 };
 
 export interface ConfigProps {
-	boardColor: number;
-	width: number;
-	height: number;
+  boardColor: number;
+  width: number;
+  height: number;
 }
 
 export interface PongState {
@@ -46,14 +54,14 @@ export interface PongState {
   };
   ball: BallProps;
   winner: PlayerPosition | null;
-	status: GameStatus;
+  status: GameStatus;
   winningScore: number;
 }
 
 export interface GameState {
-	state: PongState,
-	roomId: string,
-	playerPosition: PlayerPosition
+  state: PongState;
+  roomId: string;
+  playerPosition: PlayerPosition;
 }
 
 const initialPongState: PongState = {
@@ -68,31 +76,33 @@ const initialPongState: PongState = {
     right: { score: 0 } as PaddleProps,
   },
   ball: {} as BallProps,
-	winner: null,
-	status: 'newGamePage',
-	winningScore: 1
+  winner: null,
+  status: "newGamePage",
+  winningScore: 1,
 };
 
 const initialState: GameState = {
-	state: initialPongState,
-	roomId: '',
-	playerPosition: 'left',
-}
-
+  state: initialPongState,
+  roomId: "",
+  playerPosition: "left",
+};
 
 export const pongSlice = createSlice({
   name: "pong",
   initialState,
   reducers: {
-		syncState: (state, action: { payload: PongState, type: string }) => {
-			state.state = action.payload;
-		},
-		setRoomId: (state, action: { payload: string, type: string }) => {
-			state.roomId = action.payload;
-		},
-		setPlayerPosition: (state, action: { payload: PlayerPosition, type: string }) => {
-			state.playerPosition = action.payload;
-		}
+    syncState: (state, action: { payload: PongState; type: string }) => {
+      state.state = action.payload;
+    },
+    setRoomId: (state, action: { payload: string; type: string }) => {
+      state.roomId = action.payload;
+    },
+    setPlayerPosition: (
+      state,
+      action: { payload: PlayerPosition; type: string }
+    ) => {
+      state.playerPosition = action.payload;
+    },
     // movePaddleUp: (state, action) => {
     //   if (state.status === "paused") return state;
 
@@ -122,9 +132,9 @@ export const pongSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
-	syncState,
-	setRoomId,
-	setPlayerPosition
+  syncState,
+  setRoomId,
+  setPlayerPosition,
   // restartGame,
   // keyPress,
   // keyUp,
@@ -145,7 +155,8 @@ export const selectConfig = (state: AppState) => state.pong.state.config;
 
 export const selectRoomId = (state: AppState) => state.pong.roomId;
 
-export const selectPlayerPosition = (state: AppState) => state.pong.playerPosition;
+export const selectPlayerPosition = (state: AppState) =>
+  state.pong.playerPosition;
 
 // export const selectButtons = (state: AppState) => state.pong.buttons;
 

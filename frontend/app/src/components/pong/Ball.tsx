@@ -1,5 +1,5 @@
-import React from 'react';
-import { Graphics } from '@pixi/react';
+import React from "react";
+import { Graphics } from "@pixi/react";
 
 type Props = {
   data: {
@@ -7,11 +7,13 @@ type Props = {
     y: number;
     radius: number;
   };
+  scale?: number;
 };
 
 export default function Ball(props: Props) {
   const {
     data: { x, y, radius },
+    scale = 1,
   } = props;
 
   return (

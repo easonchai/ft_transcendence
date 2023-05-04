@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Stage } from "@pixi/react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -99,7 +99,11 @@ export const PongApp = () => {
   };
 
   const stageRef = useRef(null);
-  console.log(stageRef);
+  const scale = useMemo(() => {
+    if (stageRef && stageRef.current) {
+      return (stageRef.current as any).offsetWidth / 800;
+    } else return 1;
+  }, [stageRef, stageRef.current]);
 
   return (
     <div className="appContainer" ref={stageRef}>
@@ -133,7 +137,7 @@ export const PongApp = () => {
       {stageRef && stageRef.current && (
         <Stage
           width={(stageRef.current as any).offsetWidth || config.width}
-          height={(stageRef.current as any).offsetHeight || config.height}
+          height={(stageRef.current as any).offsetWidth * 0.625}
           options={{
             autoDensity: true,
             backgroundColor: config.boardColor,
@@ -149,6 +153,22 @@ export const PongApp = () => {
               height:
                 (stageRef.current as any).offsetHeight ||
                 pongContainerProps.config.height,
+            }}
+            ball={{
+              ...pongContainerProps.ball,
+              x:
+                (pongContainerProps.ball.x *
+                  (stageRef.current as any).offsetWidth) /
+                800,
+              y:
+                (pongContainerProps.ball.y *
+                  (stageRef.current as any).offsetWidth) /
+                800,
+              scale: (stageRef.current as any).offsetWidth / 800,
+              radius:
+                (pongContainerProps.ball.radius *
+                  (stageRef.current as any).offsetWidth) /
+                800,
             }}
             scale={(stageRef.current as any).offsetWidth / 800}
             containerHeight={(stageRef.current as any).offsetHeight}
