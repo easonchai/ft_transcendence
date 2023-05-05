@@ -22,7 +22,7 @@ import { getCookieTokenFromWs } from 'src/utils/WsCookieParser';
 
 @UseFilters(new SocketExceptionFilter())
 @WebSocketGateway({
-  namespace: '/',
+  namespace: 'clients',
 })
 export class RootGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect

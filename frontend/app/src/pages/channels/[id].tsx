@@ -197,9 +197,12 @@ const ChannelsChat = () => {
   });
 
   useEffect(() => {
-    if (id) {
-      const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/channels?id=${id}`, {
-        reconnection: false,
+    if (id && process.env.NEXT_PUBLIC_NESTJS_WS) {
+      const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/channels`, {
+        query: {
+          id,
+        },
+        reconnection: true,
         withCredentials: true,
       });
       s.on("connect", () => {
@@ -207,7 +210,7 @@ const ChannelsChat = () => {
       });
 
       s.on("connect_error", (e) => {
-        console.log(e);
+        console.log({ e });
         messageApi.error("Message gateway connect error.");
       });
       s.on("exception", (error) => {
@@ -222,7 +225,7 @@ const ChannelsChat = () => {
       setSocket(s);
       return cleanWs;
     }
-  }, [id]);
+  }, [router.query, id, process.env.NEXT_PUBLIC_NESTJS_WS]);
 
   const emitChannelMessages = () => {
     socket?.emit("channelMessages", { message: msg });

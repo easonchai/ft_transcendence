@@ -53,7 +53,7 @@ const Layout = ({ children }: PropsWithChildren) => {
   const [s, setS] = useState<Socket>();
 
   useEffect(() => {
-    const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/`, {
+    const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/clients`, {
       reconnection: true,
       withCredentials: true,
     });
@@ -81,8 +81,8 @@ const Layout = ({ children }: PropsWithChildren) => {
     return disconnect;
   }, []);
 
-  return (
-    <AppContext.Provider value={{ socket: s!, onlineClients: onlineClients }}>
+  return s ? (
+    <AppContext.Provider value={{ socket: s, onlineClients: onlineClients }}>
       <ProLayout
         route={layoutRoutes}
         menuItemRender={(item, dom) => <Link href={item.path!}>{dom}</Link>}
@@ -93,6 +93,8 @@ const Layout = ({ children }: PropsWithChildren) => {
         {children}
       </ProLayout>
     </AppContext.Provider>
+  ) : (
+    <></>
   );
 };
 
