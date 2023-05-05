@@ -3,6 +3,7 @@ import { Button, List } from "antd";
 import {
   KeyboardEvent,
   RefObject,
+  useContext,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -14,6 +15,7 @@ import useResizeObserver from "@react-hook/resize-observer";
 import { Provider } from "react-redux";
 import store from "@/store/store";
 import PongApp from "@/components/pong/PongContainer";
+import { AppContext } from "@/components/Layout";
 
 interface StageSize {
   height: number;
@@ -39,13 +41,16 @@ const useSize = (target: RefObject<HTMLDivElement>) => {
 
 const index = () => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const size = useSize(cardRef);
-
-  const [score, setScore] = useState<{ player1: number; player2: number }>({
-    player1: 0,
-    player2: 0,
-  });
-  const [endGame, setEndGame] = useState<boolean>(false);
+	
+	const context = useContext(AppContext);
+	
+	useEffect(() => {
+		context.socket.emit('inGame');
+		
+		return () => {
+			context.socket.emit('leaveGame');
+		}
+	}, [])
 
   return (
     <PageContainer title={false}>
