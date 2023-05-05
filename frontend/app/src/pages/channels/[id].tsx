@@ -67,6 +67,7 @@ const ChannelsChat = () => {
     queryKey: "getChannelById",
     queryFn: () => channelsService.getChannelById(id as string | number),
     onSuccess: (res) => setChannelName(res.name),
+    enabled: !!id,
   });
 
   const { isLoading: getChannelUsersIsLoading } = useQuery({
@@ -77,12 +78,14 @@ const ChannelsChat = () => {
       const me = res.find((obj) => obj.user.name === session?.user?.name);
       setMe(me);
     },
+    enabled: !!id,
   });
 
   const { isLoading: getChannelMessagesIsLoading } = useQuery({
     queryKey: "getChannelMessages",
     queryFn: () => channelsService.getChannelMessages(id as string | number),
     onSuccess: (res) => setChannelMessages(res),
+    enabled: !!id,
   });
 
   const { isLoading: getChannelBannedIsLoading } = useQuery({
@@ -91,7 +94,7 @@ const ChannelsChat = () => {
     onSuccess: (res) => {
       setBannedUsers(res);
     },
-    enabled: me?.type !== "MEMBER",
+    enabled: me && me.type !== "MEMBER" && !!id,
   });
 
   const { isLoading: getUsersIsLoading } = useQuery({
@@ -106,7 +109,7 @@ const ChannelsChat = () => {
       });
       setAllUsers(r);
     },
-    enabled: me?.type !== "MEMBER" && channelUsers.length !== 0,
+    enabled: me && me.type !== "MEMBER" && channelUsers.length !== 0 && !!id,
   });
 
   const editChannelUserMutation = useMutation({

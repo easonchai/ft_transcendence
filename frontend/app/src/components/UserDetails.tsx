@@ -42,6 +42,7 @@ export default function UserDetails(props: UserDetailsProps) {
       queryKey: ["getUser", props.id],
       queryFn: () => usersService.getUserById(props.id),
       onSuccess: (res) => setUser(res),
+      enabled: !!props.id,
     }
   );
 
@@ -49,46 +50,49 @@ export default function UserDetails(props: UserDetailsProps) {
     queryKey: ["getAcceptedFriends", props.id],
     queryFn: () => usersService.getAcceptedFriends(props.id),
     onSuccess: (res) => setFriends(res),
+    enabled: !!props.id,
   });
 
   const { isLoading: getPendingFriendsIsLoading } = useQuery({
     queryKey: ["getPendingFriends", props.id],
     queryFn: () => usersService.getPendingFriends(),
     onSuccess: (res) => setPendings(res),
-    enabled: props.isMe === true,
+    enabled: props.isMe === true && !!props.id,
   });
 
   const { isLoading: getRequestedFriendsIsLoading } = useQuery({
     queryKey: ["getRequestedFriends", props.id],
     queryFn: () => usersService.getRequestedFriends(),
     onSuccess: (res) => setRequested(res),
-    enabled: props.isMe === true,
+    enabled: props.isMe === true && !!props.id,
   });
 
   const { isLoading: getBlockedIsLoading } = useQuery({
     queryKey: ["getBlocked", props.id],
     queryFn: () => usersService.getBlocked(),
     onSuccess: (res) => setBlocked(res),
-    enabled: props.isMe === true,
+    enabled: props.isMe === true && !!props.id,
   });
 
   const { isLoading: getChatsIsLoading } = useQuery({
     queryKey: ["getChats", props.id],
     queryFn: () => usersService.getChats(),
     onSuccess: (res) => setChats(res),
-    enabled: props.isMe === true,
+    enabled: props.isMe === true && !!props.id,
   });
 
   const { isLoading: getMatchHistoriesIsLoading } = useQuery({
     queryKey: ["getMatchHistories", props.id],
     queryFn: () => matchService.getMatchHistories(props.id),
     onSuccess: (res) => setMatches(res),
+    enabled: !!props.id,
   });
 
   const { isLoading: getMatchStatsIsLoading } = useQuery({
     queryKey: ["getMatchStats", props.id],
     queryFn: () => matchService.getMatchStats(props.id),
     onSuccess: (res) => setStats(res),
+    enabled: !!props.id,
   });
 
   const uploadImageMutation = useMutation({

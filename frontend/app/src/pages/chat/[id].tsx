@@ -24,6 +24,7 @@ const chat = () => {
     queryKey: "getUserMessagesIsLoading",
     queryFn: () => usersService.getUserMessages(id as string),
     onSuccess: (res) => setMessages(res),
+    enabled: !!id,
   });
 
   const { isLoading: getUserIsLoading } = useQuery({
@@ -33,7 +34,7 @@ const chat = () => {
       console.log(res);
       setUser(res);
     },
-    enabled: id !== undefined,
+    enabled: !!id,
   });
 
   useEffect(() => {
