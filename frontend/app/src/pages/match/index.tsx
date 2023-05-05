@@ -41,16 +41,20 @@ const useSize = (target: RefObject<HTMLDivElement>) => {
 
 const index = () => {
   const cardRef = useRef<HTMLDivElement>(null);
-	
-	const context = useContext(AppContext);
-	
-	useEffect(() => {
-		context.socket.emit('inGame');
-		
-		return () => {
-			context.socket.emit('leaveGame');
-		}
-	}, [])
+
+  const context = useContext(AppContext);
+
+  useEffect(() => {
+    if (context.socket) {
+      context.socket.emit("inGame");
+    }
+
+    return () => {
+      if (context.socket) {
+        context.socket.emit("leaveGame");
+      }
+    };
+  }, [context.socket]);
 
   return (
     <PageContainer title={false}>

@@ -6,7 +6,6 @@ const UserStatus = (props: { id: string }): JSX.Element => {
   const context = useContext(AppContext);
 
   for (const a of context.onlineClients) {
-    console.log({ a });
     if (a.user_id === props.id) {
       return <Badge status={a.status === "ONLINE" ? "success" : "warning"} />;
     }
