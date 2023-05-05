@@ -13,21 +13,21 @@ import { IntraModule } from './intra/intra.module';
 
 @Module({
   imports: [
-		ChannelsModule,
-		MatchesModule,
-		UserModule,
-		MulterModule.register({
-			dest: './uploads',
-		}),
-		IntraModule
-	],
+    ChannelsModule,
+    MatchesModule,
+    UserModule,
+    MulterModule.register({
+      dest: './uploads',
+    }),
+    IntraModule,
+  ],
   controllers: [AppController],
   providers: [
-		AppService,
-		PrismaService,
-		AppExceptionFilter, 
-		{ provide: APP_GUARD, useClass: AuthGuard },
-		RootGateway
-	]
+    AppService,
+    PrismaService,
+    AppExceptionFilter,
+    { provide: APP_GUARD, useClass: AuthGuard },
+    RootGateway,
+  ],
 })
 export class AppModule {}

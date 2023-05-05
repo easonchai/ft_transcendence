@@ -32,6 +32,7 @@ RUN apt-get update && \
 
 ENV NODE_ENV production
 
+
 WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules

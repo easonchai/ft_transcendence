@@ -4,6 +4,7 @@ BACKEND_IMAGE=backend:v1
 OLD_NEXTAUTH_URL=$(shell awk '/NEXTAUTH_URL/ {print}' ./frontend/app/.docker.env)
 OLD_NESTJS_URL=$(shell awk '/NEXT_PUBLIC_NESTJS_URL/ {print}' ./frontend/app/.docker.env)
 OLD_NESTJS_WS=$(shell awk '/NEXT_PUBLIC_NESTJS_WS/ {print}' ./frontend/app/.docker.env)
+OLD_IP=$(shell awk '/IP/ {print}' ./frontend/app/.docker.env)
 OLD_NEXTAUTH_URL_BACKEND=$(shell awk '/NEXTAUTH_URL/ {print}' ./backend/app/.docker.env)
 
 build:
@@ -13,6 +14,7 @@ up:
 	sed -i '' 's|$(OLD_NEXTAUTH_URL)|NEXTAUTH_URL="http:\/\/$(shell python3 ip.py):3001"|g' ./frontend/app/.docker.env
 	sed -i '' 's|$(OLD_NESTJS_URL)|NEXT_PUBLIC_NESTJS_URL="http:\/\/$(shell python3 ip.py):3000"|g' ./frontend/app/.docker.env
 	sed -i '' 's|$(OLD_NESTJS_WS)|NEXT_PUBLIC_NESTJS_WS="ws:\/\/$(shell python3 ip.py):3000"|g' ./frontend/app/.docker.env
+	sed -i '' 's|$(OLD_IP)|IP="$(shell python3 ip.py)"|g' ./frontend/app/.docker.env
 	sed -i '' 's|$(OLD_NEXTAUTH_URL_BACKEND)|NEXTAUTH_URL="http:\/\/$(shell python3 ip.py):3001"|g' ./backend/app/.docker.env
 	mkdir -p ./frontend/app/prisma
 	cp ./backend/app/prisma/schema.prisma ./frontend/app/prisma/

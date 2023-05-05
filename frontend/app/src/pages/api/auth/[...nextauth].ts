@@ -62,6 +62,40 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
+  cookies:
+    process.env.NODE_ENV === "production"
+      ? {
+          sessionToken: {
+            name: `__Secure-next-auth.session-token`,
+            options: {
+              httpOnly: true,
+              sameSite: "None",
+              path: "/",
+              secure: true,
+              domain: process.env.IP,
+            },
+          },
+          callbackUrl: {
+            name: `__Secure-next-auth.callback-url`,
+            options: {
+              sameSite: "None",
+              path: "/",
+              secure: true,
+              domain: process.env.IP,
+            },
+          },
+          csrfToken: {
+            name: `next-auth.csrf-token`,
+            options: {
+              httpOnly: true,
+              sameSite: "None",
+              path: "/",
+              secure: true,
+              domain: process.env.IP,
+            },
+          },
+        }
+      : undefined,
   pages: {
     newUser: "/onboarding",
   },
