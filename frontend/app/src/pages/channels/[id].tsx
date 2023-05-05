@@ -54,6 +54,7 @@ const ChannelsChat = () => {
   >([]);
   const [msg, setMsg] = useState<string>("");
   const [socket, setSocket] = useState<Socket>();
+	const [blocked, setBlocked] = useState<User[]>([]);
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -113,6 +114,24 @@ const ChannelsChat = () => {
     },
     enabled: !!id && me && me.type !== "MEMBER" && channelUsers.length !== 0,
   });
+	
+	const { isLoading: getUserBlockedIsLoading } = useQuery({
+		queryKey: "getUserBlockedInChannel",
+		queryFn: () => usersService.getBlocked(),
+		onSuccess: (res) => {
+			setBlocked(prev => [...prev, ...res]);
+		},
+		enabled: !!id
+	})
+	
+	const { isLoading: getUserBlockedByIsLoading } = useQuery({
+		queryKey: "getUserBlockedInChannel",
+		queryFn: () => usersService.getBlockedBy(),
+		onSuccess: (res) => {
+			setBlocked(prev => [...prev, ...res]);
+		},
+		enabled: !!id
+	})
 
   const editChannelUserMutation = useMutation({
     mutationFn: ({
@@ -218,6 +237,8 @@ const ChannelsChat = () => {
         messageApi.error(error.message);
       });
       s.on("channelMessages", (body) => {
+				const found = blocked.find((obj) => obj.id === body.user_id);
+				if (found) return;
         setChannelMessages((prev) => [...prev, body]);
       });
       const cleanWs = () => {
