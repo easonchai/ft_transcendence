@@ -50,4 +50,22 @@ export class RootGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		this.io.emit('connectedClients', this.connectedClients);
 		this.logger.debug(`client ${client.id} disconnected`);
 	}
+	
+	@UseGuards(WsAuthGuard)
+	@SubscribeMessage('inGame')
+	async handleInGame(@ConnectedSocket() client: Socket, @GatewayUserId() auth_user_id: string) {
+		const found = this.connectedClients.find((obj) => obj.client_id === client.id);
+		if (!found) return ;
+		found.status = 'IN_GAME';
+		this.io.emit('connectedClients', this.connectedClients);
+	}
+	
+	@UseGuards(WsAuthGuard)
+	@SubscribeMessage('leaveGame')
+	async handleLeaveGame(@ConnectedSocket() client: Socket, @GatewayUserId() auth_user_id: string) {
+		const found = this.connectedClients.find((obj) => obj.client_id === client.id);
+		if (!found) return ;
+		found.status = 'ONLINE';
+		this.io.emit('connectedClients', this.connectedClients);
+	}
 }
