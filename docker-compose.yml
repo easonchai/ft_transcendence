@@ -16,7 +16,6 @@ services:
     env_file:
       - .env
 
-
   frontend:
     image: frontend:v1
     container_name: frontend
