@@ -44,6 +44,7 @@ const chat = () => {
         {
           reconnection: false,
           withCredentials: true,
+          forceNew: true,
         }
       );
       s.on("connect", () => {

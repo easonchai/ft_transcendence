@@ -54,6 +54,7 @@ export const PongApp = () => {
       withCredentials: true,
       reconnection: true,
       autoConnect: false,
+      forceNew: true,
     });
     s.connect();
     s.on("connect", () => {

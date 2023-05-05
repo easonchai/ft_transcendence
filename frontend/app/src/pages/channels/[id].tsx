@@ -204,6 +204,7 @@ const ChannelsChat = () => {
         },
         reconnection: true,
         withCredentials: true,
+        forceNew: true,
       });
       s.on("connect", () => {
         messageApi.success("Message gateway connected!");

@@ -56,6 +56,7 @@ const Layout = ({ children }: PropsWithChildren) => {
     const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/clients`, {
       reconnection: true,
       withCredentials: true,
+      forceNew: true,
     });
 
     s.on("connect", () => {
