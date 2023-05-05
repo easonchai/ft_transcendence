@@ -106,8 +106,6 @@ export default function UserDetails(props: UserDetailsProps) {
 
   if (!getUserIsSuccess) return <>&apos;Loading...&apos;</>;
 
-  console.log(process.env.NEXT_PUBLIC_NESTJS_URL);
-
   return (
     <PageContainer
       title="Profile"

@@ -192,29 +192,32 @@ const ChannelsChat = () => {
   });
 
   useEffect(() => {
-    const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/channels?id=${id}`, {
-      reconnection: false,
-      withCredentials: true,
-    });
-    s.on("connect", () => {
-      messageApi.success("Message gateway connected!");
-    });
+    if (id) {
+      const s = io(`${process.env.NEXT_PUBLIC_NESTJS_WS}/channels?id=${id}`, {
+        reconnection: false,
+        withCredentials: true,
+      });
+      s.on("connect", () => {
+        messageApi.success("Message gateway connected!");
+      });
 
-    s.on("connect_error", (e) => {
-      messageApi.error("Message gateway connect error.");
-    });
-    s.on("exception", (error) => {
-      messageApi.error(error.message);
-    });
-    s.on("channelMessages", (body) => {
-      setChannelMessages((prev) => [...prev, body]);
-    });
-    const cleanWs = () => {
-      s.disconnect();
-    };
-    setSocket(s);
-    return cleanWs;
-  }, []);
+      s.on("connect_error", (e) => {
+        console.log(e);
+        messageApi.error("Message gateway connect error.");
+      });
+      s.on("exception", (error) => {
+        messageApi.error(error.message);
+      });
+      s.on("channelMessages", (body) => {
+        setChannelMessages((prev) => [...prev, body]);
+      });
+      const cleanWs = () => {
+        s.disconnect();
+      };
+      setSocket(s);
+      return cleanWs;
+    }
+  }, [id]);
 
   const emitChannelMessages = () => {
     socket?.emit("channelMessages", { message: msg });
