@@ -90,6 +90,7 @@ const chat = () => {
               chats={messages}
               isLoading={getUserMessagesIsLoading}
               isDM={true}
+              blockedUsers={[]}
               users={[user as User, session?.user as User]}
             />
           ) : (
