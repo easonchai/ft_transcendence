@@ -24,7 +24,7 @@ import {
 } from "antd";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import React, { SetStateAction, useEffect, useState } from "react";
+import React, { SetStateAction, useCallback, useEffect, useState } from "react";
 import { useMutation, UseMutationResult, useQuery } from "react-query";
 import { io, Socket } from "socket.io-client";
 import dayjs from "dayjs";
@@ -90,11 +90,13 @@ const ChannelsChat = () => {
 
   const { isLoading: getChannelBannedIsLoading } = useQuery({
     queryKey: "getChannelBanned",
-    queryFn: () => channelsService.getChannelBanned(id as string),
+    queryFn: useCallback(() => {
+      return channelsService.getChannelBanned(id as string);
+    }, [id]),
     onSuccess: (res) => {
       setBannedUsers(res);
     },
-    enabled: me && me.type !== "MEMBER" && !!id,
+    enabled: !!id && me && me.type !== "MEMBER",
   });
 
   const { isLoading: getUsersIsLoading } = useQuery({
@@ -109,7 +111,7 @@ const ChannelsChat = () => {
       });
       setAllUsers(r);
     },
-    enabled: me && me.type !== "MEMBER" && channelUsers.length !== 0 && !!id,
+    enabled: !!id && me && me.type !== "MEMBER" && channelUsers.length !== 0,
   });
 
   const editChannelUserMutation = useMutation({

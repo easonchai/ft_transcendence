@@ -22,7 +22,7 @@ async function bootstrap() {
     origin:
       process.env.NODE_ENV === 'production'
         ? process.env.NEXTAUTH_URL
-        : 'http://localhost:3001',
+        : 'http://192.168.2.130:3001',
     credentials: true,
   });
 
