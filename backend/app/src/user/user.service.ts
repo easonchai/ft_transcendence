@@ -166,6 +166,7 @@ export class UserService {
       where: { blocked_id: auth_user_id },
       include: { blocked_by: true },
     });
+
     myblockby.forEach((obj) => blockby.push(obj.blocked_by));
     return blockby;
   }
@@ -348,7 +349,7 @@ export class UserService {
         id: user_id,
       },
     });
-		const file = createReadStream(join(`${process.cwd()}`, user.image));
+    const file = createReadStream(join(`${process.cwd()}`, user.image));
     return new StreamableFile(file);
   }
 
