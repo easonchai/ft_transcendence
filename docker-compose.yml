@@ -19,14 +19,10 @@ services:
   frontend:
     image: frontend:v1
     container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
+    build: ./frontend
     restart: always
     volumes:
       - ./frontend/app/.docker.env:/app/.env
-      - /app/node_modules
-      - ./frontend/app:/app
     networks:
       - fortytwo
     ports:
@@ -34,6 +30,8 @@ services:
     depends_on:
       - database
       - backend
+    env_file:
+      - ./frontend/app/.docker.env
 
   database:
     image: postgres:15

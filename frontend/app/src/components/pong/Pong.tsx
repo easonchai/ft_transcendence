@@ -23,15 +23,15 @@ interface PongProps {
   config: { boardColor: number; width: number; height: number };
   ball: BallProps;
   socket: Socket | undefined;
-	dispatch: Dispatch<AnyAction>;
+  dispatch: Dispatch<AnyAction>;
   playerPosition: PlayerPosition;
   roomId: String;
   scale?: number;
   containerWidth?: number;
   containerHeight?: number;
   messageApi: MessageInstance;
-	keydown: "KeyA" | "KeyZ" | ""
-	setKeyDown: ActionCreatorWithPayload<"" | "KeyA" | "KeyZ", "pong/setKeyDown">
+  keydown: "KeyA" | "KeyZ" | "";
+  setKeyDown: ActionCreatorWithPayload<"" | "KeyA" | "KeyZ", "pong/setKeyDown">;
 }
 
 const DEFAULTBUTTON = (config: ConfigProps, scale = 1) => {
@@ -69,48 +69,64 @@ const DEFAULT_TEXT_PROPS = (
 let tmp: number = 0;
 
 export default function Pong(props: PongProps) {
-  const { winner, players, status, config, ball, dispatch, scale = 1, keydown, setKeyDown } = props;
-	
-	useTick((delta, ticker) => {
-		if (tmp++ % 2 === 0) return;
-		if (keydown === '') return ;
-		props.socket!.emit("keyPress", {
-			playerPosition: props.playerPosition,
-			direction: keydown === "KeyA" ? "up" : "down",
-			roomId: props.roomId,
-		})
-	})
+  const {
+    winner,
+    players,
+    status,
+    config,
+    ball,
+    dispatch,
+    scale = 1,
+    keydown,
+    setKeyDown,
+  } = props;
 
-	const onKeyUp = (event: KeyboardEvent) => {
-		dispatch(setKeyDown(''));
-	}
+  useTick((delta, ticker) => {
+    if (tmp++ % 2 === 0) return;
+    if (keydown === "") return;
+    if (props.socket) {
+      props.socket.emit("keyPress", {
+        playerPosition: props.playerPosition,
+        direction: keydown === "KeyA" ? "up" : "down",
+        roomId: props.roomId,
+      });
+    }
+  });
+
+  const onKeyUp = (event: KeyboardEvent) => {
+    dispatch(setKeyDown(""));
+  };
 
   const onKeyDown = (event: KeyboardEvent) => {
-		if (event.code === "KeyA" || event.code === "KeyZ") {
-			dispatch(setKeyDown(event.code));
-		}
+    if (event.code === "KeyA" || event.code === "KeyZ") {
+      dispatch(setKeyDown(event.code));
+    }
   };
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
-		window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("keyup", onKeyUp);
 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
-			window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("keyup", onKeyUp);
     };
   });
 
   const handleReadyButtonPressed = () => {
     props.messageApi.success("Ready");
-    props.socket!.emit("readyButtonPressed", {
-      playerPosition: props.playerPosition,
-      roomId: props.roomId,
-    });
+    if (props.socket) {
+      props.socket.emit("readyButtonPressed", {
+        playerPosition: props.playerPosition,
+        roomId: props.roomId,
+      });
+    }
   };
 
   const handleNewGame = () => {
-    props.socket!.emit("newGamePressed");
+    if (props.socket) {
+      props.socket.emit("newGamePressed");
+    }
   };
 
   return (

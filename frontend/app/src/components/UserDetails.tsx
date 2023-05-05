@@ -35,7 +35,7 @@ export default function UserDetails(props: UserDetailsProps) {
   const [matches, setMatches] = useState<GetMatchesResponse[]>([]);
   const [stats, setStats] = useState<GetMatchStatsResponse>();
   const [uploadModalIsOpen, setUploadModalIsOpen] = useState<boolean>(false);
-	const router = useRouter();
+  const router = useRouter();
 
   const { isLoading: getUserIsloading, isSuccess: getUserIsSuccess } = useQuery(
     {
@@ -96,7 +96,7 @@ export default function UserDetails(props: UserDetailsProps) {
     mutationFn: (data: FormData) => usersService.updateImage(data),
     onSuccess: (res) => {
       setUser(res);
-			console.log(res)
+      console.log(res);
       messageApi.success("Successfully updated image");
     },
     onError: (e: any) => {
@@ -106,15 +106,17 @@ export default function UserDetails(props: UserDetailsProps) {
 
   if (!getUserIsSuccess) return <>&apos;Loading...&apos;</>;
 
+  console.log(process.env.NEXT_PUBLIC_NESTJS_URL);
+
   return (
     <PageContainer
       title="Profile"
       header={{
         extra: props.isMe
           ? [
-							<Button key="2" onClick={() => router.push('/match')}>
-								Game
-							</Button>,
+              <Button key="2" onClick={() => router.push("/match")}>
+                Game
+              </Button>,
               <Button key="1" onClick={() => signOut()} danger type="primary">
                 Log out
               </Button>,
@@ -127,7 +129,7 @@ export default function UserDetails(props: UserDetailsProps) {
         <Row gutter={10}>
           <Col span={4}>
             <div onClick={() => setUploadModalIsOpen(true)}>
-							<ProfilePicImage user={user!} />
+              <ProfilePicImage user={user!} />
             </div>
           </Col>
           <Col span={20}>

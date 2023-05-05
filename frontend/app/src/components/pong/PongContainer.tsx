@@ -9,11 +9,11 @@ import {
   selectRoomId,
   selectPlayerPosition,
   selectBall,
-	setKeyDown,
+  setKeyDown,
   syncState,
   setRoomId,
   setPlayerPosition,
-	selectKeyDown,
+  selectKeyDown,
 } from "./pongSlice";
 import Pong from "./Pong";
 import { io, Socket } from "socket.io-client";
@@ -28,7 +28,7 @@ export const PongApp = () => {
   const ball = useSelector(selectBall);
   const roomId = useSelector(selectRoomId);
   const playerPosition = useSelector(selectPlayerPosition);
-	const keydown = useSelector(selectKeyDown);
+  const keydown = useSelector(selectKeyDown);
   const [socket, setSocket] = useState<Socket>();
   const [messageApi, contextHolder] = message.useMessage();
   const [color, setColor] = useState<string>("#0d0c22");
@@ -45,8 +45,8 @@ export const PongApp = () => {
     playerPosition,
     roomId,
     messageApi,
-		keydown,
-		setKeyDown
+    keydown,
+    setKeyDown,
   };
 
   useEffect(() => {
@@ -78,8 +78,8 @@ export const PongApp = () => {
   }, []);
 
   useEffect(() => {
-    if (winner === playerPosition) {
-      socket!.emit("game-over", { roomId, playerPosition });
+    if (winner === playerPosition && socket) {
+      socket.emit("game-over", { roomId, playerPosition });
     }
   }, [winner]);
 

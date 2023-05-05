@@ -1,11 +1,8 @@
-FROM node:19-slim AS base
+FROM node:19.8.1 AS base
 
 FROM base AS builder
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apt-get update && \
-    apt-get install -y procps && \
-    apt-get install -y openssl && \
-    apt-get install -y libc6
+RUN apt-get update
 
 WORKDIR /app
 
@@ -26,10 +23,9 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-COPY --from=builder /app/public ./public
-
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/.next ./.next
